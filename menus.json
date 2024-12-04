@@ -1,0 +1,4 @@
+{
+    "mainmenu": ["Start", "Create A Character", "Option", "Exit"],
+    "options": ["Pure Text:", "Load Speed (Seconds)"]
+}
