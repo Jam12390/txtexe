@@ -1,5 +1,6 @@
 import time
 from tkinter import *
+import os
 
 def loadIn(frame, isPrologue, chrName):
     clearLabels(frame)
@@ -12,7 +13,7 @@ def clearLabels(frame):
 def loadScreen(frame, isPrologue, chrName):
     currentText = ""
     loadingText = Label(frame, justify=LEFT)
-    loadingText.pack()
+    loadingText.place(x=0,y=0)
     if isPrologue:
         loadText = ["Curiosity.inc (2003)© All Rights Reserved.", "\n",
                     "Verifying Access Credentials...", "\n", 1,
@@ -58,7 +59,6 @@ def loadScreen(frame, isPrologue, chrName):
                     "Connection Complete.", 0.2
                     ]
     for line in loadText: #ohmygod this actually worked
-        print(line)
         if line == "\n":
             currentText += line
         else:

@@ -79,7 +79,8 @@ def doAction(action): #do whatever action which is inputted
     pass
 
 rootWindow = Tk()
-rootWindow.geometry("300x300")
+x, y = rootWindow.winfo_screenwidth(), rootWindow.winfo_screenheight()
+rootWindow.geometry("500x500")
 
 
 areaLabel = ["","","","","","","","",""] #We're going to print the ASCII image as lines because we can do delayed loading + it makes reading it easier this way
