@@ -26,7 +26,7 @@ def loadScreen(frame, isPrologue, chrName):
                     "Connection Established.", "\n",
                     "Securing Connection To Interface...", "\n", 1,
                     "ERROR: Connection Interrupted By Higher Priority Instruction", "\n",
-                    f"Aborting Connection As {chrName}", "\n",
+                    f"Aborting Connection As Character {chrName}", "\n",
                     "Reconnecting...", "\n", 1,
                     "Locating Host", "\n",
                     "Host Located:", 0.5, " [REDACTED] at [LOCATION ERROR: ACCESS LEVEL 5 REQUIRED]", "\n",
@@ -52,7 +52,7 @@ def loadScreen(frame, isPrologue, chrName):
                     "Connection Established.", "\n",
                     "Securing Connection To Interface...", "\n", 1,
                     "Connection Secured.", "\n",
-                    f"Connecting To Host {chrName}:", "\n",
+                    f"Connecting To Host Character {chrName}:", "\n",
                     "Initialising CtrlPtl...", "\n", 0.5,
                     "Initialising Video Feed...", "\n", 0.5,
                     "Connection Complete.", 0.2
