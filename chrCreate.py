@@ -7,6 +7,7 @@ class Character():
     def __init__(self, name, health, mana, clas, specialty, advant, weak, strength, intelligence, defense, charisma, awareness, lvl, xp):
         self.name = name
         self.health = health #oh my god theres so many attributes
+        self.totalHealth = health
         self.mana = mana
         self.characterClass = clas #all of the following are initially derived from the class (excluding lvl and xp) and are increased as level increases
         self.specialty = specialty
@@ -49,14 +50,32 @@ class Enemy(Character):
         super().__init__(name, health, mana, advant, weak, defense, lvl)
     def decision(self, player):
         options = []
-        opponentLow = True if player.health < player.health*0.25 else False
-        if self.health < self.health/2:
-            if self.health < self.health/4 and not opponentLow:
-                options.append(["heal", 8])
+        opponentLow = True if player.health < player.totalHealth*0.25 else False
+        if self.health < self.totalHealth/2:
+            if self.health < self.totalHealth/4 and not opponentLow:
+                options.append(["heal", 9])
+                options.append(["statboost", 4])
                 options.append(["attack", 2])
-            elif self.health < self.health/4 and opponentLow:
-                options.append(["heal", 5])
-                options.append(["attack", 5]) #todo: continue *trying* to make a semi-decent enemy ai
+            elif self.health < self.totalHealth/4 and opponentLow:
+                options.append(["heal", 8])
+                options.append(["statboost", 3])
+                options.append(["attack", 4]) #todo: continue *trying* to make a semi-decent enemy ai
+            elif opponentLow:
+                options.append(["heal", 3])
+                options.append(["statboost", 2])
+                options.append(["attack", 10])
+            else:
+                options.append(["heal", 1])
+                options.append(["statboost", 2])
+                options.append(["attack", 12])
+        if self.health < self.totalHealth and self.health > self.totalHealth*0.75:
+            options.append(["heal", 1])
+            options.append(["statboost", 5])
+            options.append(["attack", 9])
+        elif self.health > self.totalHealth*0.75:
+            options.append(["heal", 0])
+            options.append(["statboost", 4])
+            options.attack(["attack", 11]) #this is extremely basic decision making based on only health currently - will add mana as a weighting later during what spell to cast.
     def attack():
         pass
 
