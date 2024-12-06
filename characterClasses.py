@@ -2,20 +2,23 @@ import random
 import json
 
 class Character():
-    def __init__(self, name, health, mana, clas, specialty, advant, weak, strength, intelligence, defense, charisma, awareness, lvl, xp):
+    def __init__(self, name, health, mana, clas, specialty, advant, weak, strength, intelligence, defense, charisma, awareness, abilities, lvl, xp):
         self.name = name
         self.health = health #oh my god theres so many attributes
         self.totalHealth = health
         self.mana = mana
+        self.totalMana = mana
         self.characterClass = clas #all of the following are initially derived from the class (excluding lvl and xp) and are increased as level increases
         self.specialty = specialty
         self.advantageType = advant
         self.disadvantageType = weak
+        self.disadvantageTurns = 0
         self.strength = strength
         self.intelligence = intelligence
         self.defense = defense
         self.charisma = charisma
         self.awareness = awareness
+        self.abilities = abilities #use dictionary of dictionaties here to store name, type, description, damage, disadvantage chance, effect, etc. 
         self.level = lvl
         self.xp = xp
         self.defending = False
@@ -44,8 +47,9 @@ class Character():
         self.defending = True
 
 class Enemy(Character):
-    def __init__(self, name, health, mana, advant, weak, defense, lvl):
-        super().__init__(name, health, mana, advant, weak, defense, lvl)
+    def __init__(self, name, health, mana, advant, weak, defense, abilities, lvl):
+        super().__init__(name, health, mana, advant, weak, defense, abilities, lvl)
+        self.disadvantageTurns = 0
     def decision(self, player):
         options = []
         opponentLow = True if player.health < player.totalHealth*0.25 else False
@@ -66,13 +70,44 @@ class Enemy(Character):
                 options.append(["heal", 1])
                 options.append(["statboost", 2])
                 options.append(["attack", 12])
-        if self.health < self.totalHealth and self.health > self.totalHealth*0.75:
+        elif self.health < self.totalHealth and self.health > self.totalHealth*0.75:
             options.append(["heal", 1])
             options.append(["statboost", 5])
             options.append(["attack", 9])
         elif self.health > self.totalHealth*0.75:
             options.append(["heal", 0])
             options.append(["statboost", 4])
-            options.attack(["attack", 11]) #this is extremely basic decision making based on only health currently - will add mana as a weighting later during what spell to cast.
+            options.append(["attack", 11]) #this is extremely basic decision making based on only health currently - will add mana as a weighting later during what spell to cast.
+        if player.disadvantageTurns > 0:
+            options[2][1] += 3
+            options[0][1] -= 2
+            options[1][1] -= 1
+            if options[0][1] < 0:
+                options[0][1] = 0
+            if options[1][1] < 0:
+                options[1][1] = 0
+        decision = random.randint(0,(options[0][1]+options[1][1]+options[2][1]))
+        if decision <= options[0][1]:
+            decision = "heal"
+        elif decision <= options[0][1]+options[1][1]:
+            decision = "statboost"
+        elif decision <= options[0][1]+options[1][1]+options[2][1]:
+            decision = "attack"
+    def getDecision(self, options):
+        if decision <= options[0][1]:
+            decision = "heal"
+        elif decision <= options[0][1]+options[1][1]:
+            decision = "statboost"
+        elif decision <= options[0][1]+options[1][1]+options[2][1]:
+            decision = "attack" #todo here: continue developing decision making - ONLY SELECT PRESENT ABILITIES
+    def checkAbilityPresence(self, type):
+        foundAbilities = {}
+        for ability in self.abilities:
+            if ability["type"].lower() == type.lower():
+                foundAbilities[ability["name"]] = ability
+        if len(foundAbilities) > 0:
+            return True, foundAbilities
+        else:
+            return False, foundAbilities
     def attack():
         pass
