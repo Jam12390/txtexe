@@ -19,6 +19,7 @@ class Character():
         self.charisma = charisma
         self.awareness = awareness
         self.abilities = abilities #use dictionary of dictionaties here to store name, type, description, damage, disadvantage chance, effect, etc. 
+        self.action = ""
         self.level = lvl
         self.xp = xp
         self.defending = False
@@ -86,28 +87,104 @@ class Enemy(Character):
                 options[0][1] = 0
             if options[1][1] < 0:
                 options[1][1] = 0
+        self.getMainDecision(options)
+
+    def getMainDecision(self, options):
         decision = random.randint(0,(options[0][1]+options[1][1]+options[2][1]))
-        if decision <= options[0][1]:
-            decision = "heal"
-        elif decision <= options[0][1]+options[1][1]:
-            decision = "statboost"
-        elif decision <= options[0][1]+options[1][1]+options[2][1]:
-            decision = "attack"
-    def getDecision(self, options):
-        if decision <= options[0][1]:
-            decision = "heal"
-        elif decision <= options[0][1]+options[1][1]:
-            decision = "statboost"
-        elif decision <= options[0][1]+options[1][1]+options[2][1]:
-            decision = "attack" #todo here: continue developing decision making - ONLY SELECT PRESENT ABILITIES
+        while isinstance(decision, int):
+            if decision <= options[0][1]:
+                present, abilities = self.checkAbilityPresence(type="heal")
+                if present:
+                    decision = "heal"
+                else:
+                    options[0][1] = 0
+            elif decision <= options[0][1]+options[1][1]:
+                present, abilities = self.checkAbilityPresence(type="statboost")
+                if present:
+                    decision = "statboost"
+                else:
+                    options[1][1] = 0
+            elif decision <= options[0][1]+options[1][1]+options[2][1]:
+                present, abilities = self.checkAbilityPresence(type="attack")
+                if present:
+                    decision = "attack"
+                else:
+                    options[2][1] = 0
+            if isinstance(decision, int):
+                decision = random.randint(0,(options[0][1]+options[1][1]+options[2][1]))
+        self.action = self.chooseSubDecision(abilities)
+
+    def chooseSubDecision(self, availableAbilities):
+        dmgSorted = []
+        magicCount = 0
+        for i in availableAbilities:
+            if i["type"] == "magic":
+                magicCount += 1
+        if magicCount > 0:
+            typeProb = [
+                round(
+                    (1-(1-self.mana/self.totalMana))*100 #physical probability
+                ),
+                round(
+                    (1-(self.mana/self.totalMana))*100 #magic probability
+                )
+            ]
+        else:
+            typeProb = [1,0]
+        attackType = random.randint(0,(typeProb[0]+typeProb[1]))
+        if attackType <= typeProb[0]:
+            attackType = "physical"
+        else:
+            attackType = "magic"
+        for ability in availableAbilities:
+            if ability["type"] == attackType:
+                dmgSorted += ability
+        dmgSorted = sorted(dmgSorted, key=lambda x: x["damage"])
+        if attackType == "magic":
+            for ability in dmgSorted:
+                if self.mana >= ability["manacost"] and ability["type"] == "magic":
+                    finalDecision = ability
+        else:
+            finalDecision = dmgSorted[0]
+        return finalDecision
+
     def checkAbilityPresence(self, type):
         foundAbilities = {}
-        for ability in self.abilities:
+        for ability in self.abilities: #a dictionary of dictionaries, will most likely contain name: name, description, type, dmg, mana cost
             if ability["type"].lower() == type.lower():
                 foundAbilities[ability["name"]] = ability
         if len(foundAbilities) > 0:
             return True, foundAbilities
         else:
             return False, foundAbilities
-    def attack():
-        pass
+    def attack(self, player):
+        finalDecision = self.decision(player=player)
+        initDmg = finalDecision["damage"]
+        self.mana -= finalDecision["manacost"]
+        if self.disadvantageTurns > 0:
+            disadvantageRoll = random.randint(0,20)
+            miss = True if disadvantageRoll == 0 else False
+            self.disadvantageTurns -= 1
+            if disadvantageRoll != 0 and disadvantageRoll < 11:
+                initDmg = round(initDmg*0.6)
+            elif disadvantageRoll < 16:
+                initDmg = round(initDmg*0.8)
+            elif disadvantageRoll < 20:
+                initDmg = round(initDmg*0.9)
+            elif disadvantageRoll == 20:
+                initDmg = initDmg
+            elif miss:
+                initDmg = 0
+        if self.advantageType == finalDecision["type"]:
+            initDmg = round(initDmg*1.5)
+        print(f"{self.name} uses {finalDecision["name"]}")
+        if not miss:
+            print(f"{player.name} was damaged for {initDmg}")
+            player.health -= initDmg
+        else:
+            print("The attack misses")
+        if finalDecision["disadvantageturns"] > 0:
+            disadvantageEffect = random.randint(0,100)
+            if disadvantageEffect <= finalDecision["disadvantageProbability"]:
+                print(f"{player.name} was disadvantaged for {finalDecision["disadvantageturns"]} turns")
+                player.disadvantageTurns += finalDecision["disadvantageturns"]
