@@ -26,26 +26,58 @@ class Character():
     def attack(self, enemy, ability):
         with open("allAbilities.json", "r") as f:
             currentAttack = json.load(f.read())[ability]
-        if self.awareness > 20:
-            self.refuse()
+        initDmg = currentAttack["damage"]
+        print(f"You use {currentAttack["name"]}") #temp code: change this to run a procedure which outputs the description like during loadin.py, you know what i mean
+        if currentAttack["type"].lower() == self.advantageType.lower():
+            initDmg = round(initDmg*1.5)
+        elif currentAttack["type"].lower() == self.disadvantageType.lower(): #adv and disadv types are gotten from class
+            initDmg = round(initDmg*0.75)
+        if currentAttack["type"].lower() == "physical":
+            initDmg = round(initDmg*(1+(0.4*(self.strength/20)))) #increase damage by up to 40% from strength/20(max level) multiplied by 0.4 and added to 1 to get a 0-40% increase
+        elif currentAttack["type"].lower() == "magic":
+            initDmg = round(initDmg*(1+(0.4*(self.intelligence/20)))) #same with magic but with intelligence instead of strength
+        miss = False #this needs to be defined here as default as otherwise rolling for disadvantage on the enemy wouldn't work if the player wasnt disadvantagedas miss wouldnt be defined
+        if self.disadvantageTurns > 0:
+            disadvantageRoll = random.randint(0,20)
+            miss = True if disadvantageRoll == 0 else False
+            self.disadvantageTurns -= 1
+            if disadvantageRoll != 0 and disadvantageRoll < 11:
+                initDmg = round(initDmg*0.6)
+            elif disadvantageRoll < 16:
+                initDmg = round(initDmg*0.75)
+            elif disadvantageRoll < 20:
+                initDmg = round(initDmg*0.85)
+            elif disadvantageRoll == 20:
+                initDmg = initDmg
+            elif miss:
+                initDmg = 0
+        if currentAttack["disadvantageTurns"] > 0 and not miss:
+            if random.randint(0,100) <= currentAttack["disadvantageProbability"]:
+                print(f"{enemy.name} was disadvantaged for {currentAttack["disadvantageTurns"]} turns")
+                enemyDisadvantage = currentAttack["disadvantageTurns"]
+            else:
+                enemyDisadvantage = 0
         else:
-            initDmg = currentAttack["damage"]
-            print(f"You use {currentAttack["description"]}") #temp code: change this to run a procedure which outputs the description like during loadin.py, you know what i mean
-            if currentAttack["type"].lower() == self.advantageType.lower():
-                initDmg = round(initDmg*1.2)
-            elif currentAttack["type"].lower() == self.disadvantageType.lower(): #adv and disadv types are gotten from class
-                initDmg = round(initDmg*0.7)
-            if currentAttack["type"].lower() == "physical":
-                initDmg = round(initDmg*(1+(0.4*(self.strength/20)))) #increase damage by up to 40% from strength/20(max level) multiplied by 0.4 and added to 1 to get a 0-40% increase
-            elif currentAttack["type"].lower() == "magic":
-                initDmg = round(initDmg*(1+(0.4*(self.intelligence/20)))) #same with magic but with intelligence instead of strength
-            enemy.health -= round(initDmg*1-(0.4*(enemy.defense/20))) #damage dealing works the same with percentage decreases (maybe add weakness types later?)
-    def refuse(self):
-        print("Your vessel refuses to attack") #use vessel as a term here since this can only be reached later in the game. This is also unfinished as idrk what to do here
+            enemyDisadvantage = 0
+        initDmg = round(initDmg*(1-(0.01*enemy.defense))) #defense effect calculated here
+        if not miss:
+            finalDmg = initDmg
+            print(f"{enemy.name} was hit for {finalDmg} damage")
+        else:
+            print("the attack misses")
+            finalDmg = 0
+        enemy.takeHit(damage=finalDmg, disadvantageModified=enemyDisadvantage) #hoping this modifies the class directly instead of the local variable
+    def refuse(self): #refusing is now a story locked event, this is just here as a reminder
+        print("") #nothing here now due to this being a reminder
     def defend(self):
-        print("You defend") #increase defense for a turn, see attack() for effects
-        defense += 10
+        print("You defend") #increase defense for a turn and cannot be disadvantaged, see attack() in enemy class for effect
+        self.defense += 10
         self.defending = True
+    def takeHit(self, damage, disadvantageModified, stopDefending):
+        self.health -= damage
+        self.disadvantageTurns += disadvantageModified
+        if stopDefending:
+            self.defending = False
 
 class Enemy(Character):
     def __init__(self, name, health, mana, advant, weak, defense, abilities, lvl):
@@ -158,9 +190,11 @@ class Enemy(Character):
         else:
             return False, foundAbilities
     def attack(self, player):
+        stopPlayerDefense = False
         finalDecision = self.decision(player=player)
         initDmg = finalDecision["damage"]
         self.mana -= finalDecision["manacost"]
+        miss = False #needs to be defaulted here too as otherwise checking for a miss would throw an undefined error if enemy isnt disadvantaged
         if self.disadvantageTurns > 0:
             disadvantageRoll = random.randint(0,20)
             miss = True if disadvantageRoll == 0 else False
@@ -168,23 +202,43 @@ class Enemy(Character):
             if disadvantageRoll != 0 and disadvantageRoll < 11:
                 initDmg = round(initDmg*0.6)
             elif disadvantageRoll < 16:
-                initDmg = round(initDmg*0.8)
+                initDmg = round(initDmg*0.75)
             elif disadvantageRoll < 20:
-                initDmg = round(initDmg*0.9)
+                initDmg = round(initDmg*0.85)
             elif disadvantageRoll == 20:
                 initDmg = initDmg
             elif miss:
                 initDmg = 0
         if self.advantageType == finalDecision["type"]:
             initDmg = round(initDmg*1.5)
+        elif self.disadvantageType == finalDecision["type"]:
+            initDmg = round(initDmg*0.75)
+        #defense effects, up to 50 (defense goes up to 40 but can be increased further if blocking)
+        initDmg = round(
+            initDmg*(
+                1-(0.01*player.defense) #% decrease in dmg up to 40% at max level with an extra 10% if blocking
+            )
+        )
         print(f"{self.name} uses {finalDecision["name"]}")
         if not miss:
             print(f"{player.name} was damaged for {initDmg}")
-            player.health -= initDmg
+            finalDmg = initDmg
         else:
             print("The attack misses")
-        if finalDecision["disadvantageturns"] > 0:
+            finalDmg = 0
+        if finalDecision["disadvantageturns"] > 0 and not player.defending: #player cannot be disadvantaged if they are blocking
             disadvantageEffect = random.randint(0,100)
             if disadvantageEffect <= finalDecision["disadvantageProbability"]:
                 print(f"{player.name} was disadvantaged for {finalDecision["disadvantageturns"]} turns")
-                player.disadvantageTurns += finalDecision["disadvantageturns"]
+                playerDisadvantage = finalDecision["disadvantageturns"]
+            else:
+                playerDisadvantage = 0
+        elif player.defending:
+            stopPlayerDefense = True
+            playerDisadvantage = 0
+        else:
+            playerDisadvantage = 0
+        player.takeHit(damage=finalDmg, disadvantageModified=playerDisadvantage, stopDefending=stopPlayerDefense)
+    def takeHit(self, damage, disadvantageModified):
+        self.health -= damage
+        self.disadvantageTurns += disadvantageModified
