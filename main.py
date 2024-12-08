@@ -16,9 +16,16 @@ inMenu = True
 isPrologue = True
 chrName = "Test"
 
+with open("menus.json", "r") as f:
+    allMenus = json.load(f.read())
+    f.close()
+
 def caseInput(key): #any time a ui input is pressed
     global currentIndex
     match (key):
+        case (Key.esc):
+            if inMenu:
+                menuBack() #TODO: add arguments for this so it doesnt fucking break
         case (Key.up):
             if inMenu:
                 currentIndex = menuUp(currentIndex)
@@ -51,6 +58,25 @@ def menuDown(currentIndex):
     else:
         return currentIndex
 
+def menuBack(menuPresence, parentMenu, menuWidget):
+    if menuPresence:
+        global menuOpt
+        menuOpt = []
+        parentMenu = allMenus[parentMenu]
+        for option in parentMenu:
+            menuOpt.append(option)
+        menuOpt[0] = "> " + menuOpt[0]
+        redrawMenu(menuWidget)
+
+def enterSubMenu(selectedMenu, menuWidget):
+    global menuOpt
+    menuOpt = []
+    subMenu = json.load(f.read())[selectedMenu]
+    for option in subMenu:
+        menuOpt.append(option)
+    menuOpt[0] = "> " + menuOpt[0]
+    redrawMenu(menuWidget)
+
 def redrawMenu(label):
     newText = ""
     for option in range (0,len(menuOpt)):
@@ -62,10 +88,11 @@ def redrawMenu(label):
 
 def selectIndex(currentIndex):
     print(f"You selected {menuOpt[currentIndex]}")
+    isSubMenuTrigger = True if option.lower() in allMenus["submenutriggers"] else False #TODO: continue submenu entering logic here
     option = menuOpt[currentIndex].replace("> ", "")
     if option == "Start":
         listener.stop()
-        ldScreen.loadIn(rootWindow, isPrologue, chrName)
+        ldScreen.loadIn(rootWindow, isPrologue, chrName) #TODO: add a check for swapping menus in this case entering a submenu
 
 def submitText():
     validAction, action = checkAction(currentScenario)
