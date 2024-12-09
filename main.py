@@ -7,25 +7,52 @@ import loadin as ldScreen
 currentIndex = 0
 currentScenario = "menu"
 
-with open("menus.json", "r") as file:
-    menus = json.load(file)
+jsonFile = open("menus.json", "r")
+allMenus = json.load(jsonFile)
+jsonFile.close()
 
-menuOpt = menus["mainmenu"]
+menuOpt = allMenus["mainmenu"]
+currentMenu = "mainmenu"
 inMenu = True
 
 isPrologue = True
 chrName = "Test"
+previousMenus = []
 
-with open("menus.json", "r") as f:
-    allMenus = json.load(f.read())
-    f.close()
+arts = [
+    r"""
+____________  __         __  ____________   ____________   __         __  ____________
+|__________|  \ \       / /  |__________|   |__________|   \ \       / /  |__________|
+|__________|   \ \     / /   |__________|   |  |            \ \     / /   |  |        
+    |  |        \ \   / /        |  |       |  |_____        \ \   / /    |  |_____   
+    |  |         \ \ / /         |  |       |   _____|        \ \ / /     |   _____|  
+    |  |         / / \ \         |  |       |  |              / / \ \     |  |        
+    |  |        / /   \ \        |  |       |  |             / /   \ \    |  |        
+    |  |       / /     \ \       |  |       |  |_______     / /     \ \   |  |_______ 
+    |__|      /_/       \_\      |__|       |__________|   /_/       \_\  |__________|
+""",
+r"""
+____________    ____________   __         __  ____________   ____________
+|__________|    |__________|   \ \       / /  |__________|   |__________|
+|__________|    |  |            \ \     / /   |  |           |__________|
+    |  |        |  |_____        \ \   / /    |  |_____          |  |    
+    |  |        |   _____|        \ \ / /     |   _____|         |  |    
+    |  |        |  |              / / \ \     |  |               |  |    
+    |  |        |  |             / /   \ \    |  |               |  |    
+    |  |        |  |_______     / /     \ \   |  |_______        |  |    
+    |__|        |__________|   /_/       \_\  |__________|       |__|    
+"""
+]
+titleChoice = 0
+titles = ["TXTEXE", "TEXET"]
 
 def caseInput(key): #any time a ui input is pressed
     global currentIndex
+    global previousMenus
     match (key):
         case (Key.esc):
             if inMenu:
-                menuBack() #TODO: add arguments for this so it doesnt fucking break
+                menuBack(previousMenus, menu) #TODO: add arguments for this so it doesnt fucking break
         case (Key.up):
             if inMenu:
                 currentIndex = menuUp(currentIndex)
@@ -33,12 +60,14 @@ def caseInput(key): #any time a ui input is pressed
             if inMenu:
                 currentIndex = menuDown(currentIndex)
         case (Key.enter):
-            if inMenu:
-                selectIndex(currentIndex)
-            else:
-                submitText()
+            if rootWindow.focus_displayof():
+                if inMenu:
+                    selectIndex(currentIndex)
+                else:
+                    submitText()
 
 def menuUp(currentIndex):
+    global menuOpt
     if not currentIndex-1 < 0:
         menuOpt[currentIndex-1] = "> " + menuOpt[currentIndex-1]
         menuOpt[currentIndex] = menuOpt[currentIndex].replace("> ","")
@@ -49,6 +78,7 @@ def menuUp(currentIndex):
         return currentIndex
 
 def menuDown(currentIndex):
+    global menuOpt
     if currentIndex+1 <= len(menuOpt)-1:
         menuOpt[currentIndex+1] = "> " + menuOpt[currentIndex+1]
         menuOpt[currentIndex] = menuOpt[currentIndex].replace("> ","")
@@ -58,26 +88,32 @@ def menuDown(currentIndex):
     else:
         return currentIndex
 
-def menuBack(menuPresence, parentMenu, menuWidget):
-    if menuPresence:
+def menuBack(parentMenu, menuWidget):
+    if len(parentMenu) > 0:
         global menuOpt
+        global currentMenu
+        global previousMenus
         menuOpt = []
-        parentMenu = allMenus[parentMenu]
+        parentMenu = allMenus[parentMenu[0]]
         for option in parentMenu:
             menuOpt.append(option)
         menuOpt[0] = "> " + menuOpt[0]
         redrawMenu(menuWidget)
+        currentMenu = previousMenus[0]
+        previousMenus.pop(0)
 
-def enterSubMenu(selectedMenu, menuWidget):
-    global menuOpt
-    menuOpt = []
-    subMenu = json.load(f.read())[selectedMenu]
-    for option in subMenu:
-        menuOpt.append(option)
-    menuOpt[0] = "> " + menuOpt[0]
+def enterSubMenu(menuWidget, option):
+    global currentIndex
+    global previousMenus
+    global currentMenu
+    allMenus[currentMenu][currentIndex] = allMenus[currentMenu][currentIndex].replace("> ", "")
+    previousMenus.insert(0,currentMenu)
+    currentMenu = option.lower()
+    currentIndex = 0
     redrawMenu(menuWidget)
 
 def redrawMenu(label):
+    global menuOpt
     newText = ""
     for option in range (0,len(menuOpt)):
         if not option == len(menuOpt):
@@ -87,12 +123,37 @@ def redrawMenu(label):
     label.config(text=newText)
 
 def selectIndex(currentIndex):
+    global menuOpt
+    global titleChoice
+    global title
     print(f"You selected {menuOpt[currentIndex]}")
-    isSubMenuTrigger = True if option.lower() in allMenus["submenutriggers"] else False #TODO: continue submenu entering logic here
     option = menuOpt[currentIndex].replace("> ", "")
-    if option == "Start":
-        listener.stop()
-        ldScreen.loadIn(rootWindow, isPrologue, chrName) #TODO: add a check for swapping menus in this case entering a submenu
+    isSubMenuTrigger = True if option.lower() in allMenus["submenutriggers"] else False #TODO: continue submenu entering logic here
+    if isSubMenuTrigger:
+        menuOpt = allMenus[option.lower()]
+        enterSubMenu(menu, option.lower())
+    else:
+        match (currentMenu):
+            case ("mainmenu"):
+                match (option.lower()):
+                    case ("start"):
+                        listener.stop()
+                        ldScreen.loadIn(rootWindow, isPrologue, chrName) #TODO: add a check for swapping menus in this case entering a submenu
+                    case ("exit"):
+                        rootWindow.quit()
+            case ("options"):
+                if "title:" in option.lower():
+                    title.delete("1.0", "end")
+                    allMenus["options"][1] = allMenus["options"][1].replace(titles[titleChoice], "")
+                    #menuOpt[1] = menuOpt[1].replace(titles[titleChoice], "")
+                    titleChoice += 1
+                    if titleChoice > len(arts)-1:
+                        titleChoice = 0
+                    allMenus["options"][1] += titles[titleChoice]
+                    #menuOpt[1] += titles[titleChoice]
+                    redrawMenu(menu)
+                    title.insert("1.0", arts[titleChoice])
+
 
 def submitText():
     validAction, action = checkAction(currentScenario)
@@ -108,19 +169,22 @@ def doAction(action): #do whatever action which is inputted
 rootWindow = Tk()
 x, y = rootWindow.winfo_screenwidth(), rootWindow.winfo_screenheight()
 rootWindow.geometry("500x500")
-
+rootWindow.config(background="black")
 
 areaLabel = ["","","","","","","","",""] #We're going to print the ASCII image as lines because we can do delayed loading + it makes reading it easier this way
 dialogueBox = [""] #same with any dialogue
 dialogueText = "nothing rn"
 
 cmdEntry = Entry(rootWindow, textvariable=">", width=30)
-cmdEntry.pack(pady=20)
+cmdEntry.place(x=200, y=200)
 
-menu = Label(justify=LEFT)
-menu.pack()
+title = Text(rootWindow, wrap=NONE, font=("Courier", 8), borderwidth=0, bg="black", fg="green", width=rootWindow.winfo_screenwidth(), height=rootWindow.winfo_screenheight())
+title.insert("1.0", arts[titleChoice])
+title.place(x=15, y=10)
+
+menu = Label(justify=LEFT, bg="black", fg="green", font=("Courier", 16))
+menu.place(x=15,y=160)
 redrawMenu(menu)
-
 
 listener = Listener(on_press=caseInput)
 listener.start()

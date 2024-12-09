@@ -7,8 +7,10 @@ def loadIn(frame, isPrologue, chrName):
     loadScreen(frame, isPrologue, chrName)
 
 def clearLabels(frame):
+    print(frame.winfo_children())
     for widget in frame.winfo_children():
-        widget.destroy()
+        if not widget == "<tkinter.Entry object .!entry>":
+            widget.destroy()
 
 def loadScreen(frame, isPrologue, chrName):
     currentText = ""
