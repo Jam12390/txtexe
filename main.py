@@ -93,6 +93,8 @@ def menuBack(parentMenu, menuWidget):
         global menuOpt
         global currentMenu
         global previousMenus
+        global currentIndex
+        currentIndex = 0
         menuOpt = []
         parentMenu = allMenus[parentMenu[0]]
         for option in parentMenu:
