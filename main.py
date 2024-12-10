@@ -19,6 +19,10 @@ isPrologue = True
 chrName = "Test"
 previousMenus = []
 
+availableColours = ["Green", "White", "Pink", "Blue", "Cyan", "Purple"]
+currentColourIndex = 0
+currentColour = availableColours[currentColourIndex]
+
 arts = [
     r"""
 ____________  __         __  ____________   ____________   __         __  ____________
@@ -59,12 +63,45 @@ def caseInput(key): #any time a ui input is pressed
         case (Key.down):
             if inMenu:
                 currentIndex = menuDown(currentIndex)
+        case (Key.left):
+            if inMenu:
+                if str(currentMenu.lower()+":"+menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":") in allMenus["arrowkeymenu"]:
+                    findArrowMenu(menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":", "left")
+        case (Key.right):
+            if inMenu:
+                if str(currentMenu.lower()+":"+menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":") in allMenus["arrowkeymenu"]:
+                    findArrowMenu(menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":", "right")
         case (Key.enter):
             if rootWindow.focus_displayof():
                 if inMenu:
                     selectIndex(currentIndex)
                 else:
                     submitText()
+
+def findArrowMenu(menu, direction):
+    match (menu):
+        case("text colour:"):
+            print("O")
+            textColourSwap(direction)
+
+def textColourSwap(direction):
+    global currentColourIndex
+    if direction.lower() == "left":
+        currentColourIndex -= 1
+        if currentColourIndex < 0:
+            currentColourIndex = len(availableColours)-1
+    else:
+        currentColourIndex += 1
+        if currentColourIndex > len(availableColours)-1:
+            currentColourIndex = 0
+    currentColour = availableColours[currentColourIndex].lower()
+    menu.config(fg=currentColour)
+    title.config(fg=currentColour)
+    menuOpt[currentIndex] = menuOpt[currentIndex].split(":")[0]+":"+" < "+currentColour.capitalize()+" >"
+    optionIndex = allMenus[currentMenu].index(str(menuOpt[currentIndex].split(":")[0]+":"+" < "+currentColour.capitalize()+" >"))
+    allMenus[currentMenu][optionIndex] = menuOpt[currentIndex].split(":")[0]+":"+" < "+currentColour.capitalize()+" >"
+    redrawMenu(menu)
+
 
 def menuUp(currentIndex):
     global menuOpt
@@ -180,11 +217,11 @@ dialogueText = "nothing rn"
 cmdEntry = Entry(rootWindow, textvariable=">", width=30)
 cmdEntry.place(x=200, y=200)
 
-title = Text(rootWindow, wrap=NONE, font=("Courier", 8), borderwidth=0, bg="black", fg="green", width=rootWindow.winfo_screenwidth(), height=rootWindow.winfo_screenheight())
+title = Text(rootWindow, wrap=NONE, font=("Courier", 8), borderwidth=0, bg="black", fg=availableColours[currentColourIndex], width=rootWindow.winfo_screenwidth(), height=rootWindow.winfo_screenheight())
 title.insert("1.0", arts[titleChoice])
 title.place(x=15, y=10)
 
-menu = Label(justify=LEFT, bg="black", fg="green", font=("Courier", 16))
+menu = Label(justify=LEFT, bg="black", fg=availableColours[currentColourIndex], font=("Courier", 16))
 menu.place(x=15,y=160)
 redrawMenu(menu)
 
