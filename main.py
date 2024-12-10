@@ -81,7 +81,6 @@ def caseInput(key): #any time a ui input is pressed
 def findArrowMenu(menu, direction):
     match (menu):
         case("text colour:"):
-            print("O")
             textColourSwap(direction)
 
 def textColourSwap(direction):
