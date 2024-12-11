@@ -1,0 +1,13 @@
+{
+    "puretext": false,
+    "title": "txtexe",
+    "textcolour": "green",
+    "textspeed": 1
+}
+
+{
+    "mainmenu": ["> Start", "Options", "Exit"],
+    "options": ["> Pure Text: false", "Title: TXTEXE", "Text Colour: < Green >", "Text Speed: < 1 >"],
+    "submenutriggers": ["options"],
+    "arrowkeymenu": ["options:text colour:", "options:text speed:"]
+}

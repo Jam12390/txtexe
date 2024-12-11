@@ -1,6 +1,6 @@
 {
     "mainmenu": ["> Start", "Options", "Exit"],
-    "options": ["> Pure Text:", "Title: TXTEXE", "Text Colour: < Green >", "Load Speed (Seconds)"],
+    "options": ["> Pure Text:", "Title:", "Text Colour:", "Text Speed:"],
     "submenutriggers": ["options"],
-    "arrowkeymenu": ["options:text colour:"]
+    "arrowkeymenu": ["options:text colour:", "options:text speed:"]
 }

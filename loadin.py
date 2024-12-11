@@ -2,9 +2,9 @@ import time
 from tkinter import *
 import os
 
-def loadIn(frame, isPrologue, chrName):
+def loadIn(frame, isPrologue, chrName, loadSpeedMultiplier):
     clearLabels(frame)
-    loadScreen(frame, isPrologue, chrName)
+    loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier)
 
 def clearLabels(frame):
     print(frame.winfo_children())
@@ -12,7 +12,7 @@ def clearLabels(frame):
         if not widget == "<tkinter.Entry object .!entry>":
             widget.destroy()
 
-def loadScreen(frame, isPrologue, chrName):
+def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier):
     currentText = ""
     loadingText = Label(frame, justify=LEFT)
     loadingText.place(x=0,y=0)
@@ -70,4 +70,4 @@ def loadScreen(frame, isPrologue, chrName):
                 for letter in line:
                     currentText += letter
                     loadingText.config(text=currentText)
-                    time.sleep(0.01)
+                    time.sleep(0.01*loadSpeedMultiplier)

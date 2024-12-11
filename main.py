@@ -11,6 +11,10 @@ jsonFile = open("menus.json", "r")
 allMenus = json.load(jsonFile)
 jsonFile.close()
 
+options = open("options.json", "r")
+optionsJson = json.load(options)
+options.close()
+
 menuOpt = allMenus["mainmenu"]
 currentMenu = "mainmenu"
 inMenu = True
@@ -20,8 +24,10 @@ chrName = "Test"
 previousMenus = []
 
 availableColours = ["Green", "White", "Pink", "Blue", "Cyan", "Purple"]
-currentColourIndex = 0
+currentColourIndex = int(availableColours.index(optionsJson["textcolour"].capitalize()))
 currentColour = availableColours[currentColourIndex]
+
+textSpeedMult = float(optionsJson["textspeed"])
 
 arts = [
     r"""
@@ -47,8 +53,8 @@ ____________    ____________   __         __  ____________   ____________
     |__|        |__________|   /_/       \_\  |__________|       |__|    
 """
 ]
-titleChoice = 0
 titles = ["TXTEXE", "TEXET"]
+titleChoice = int(titles.index(optionsJson["title"].upper()))
 
 def caseInput(key): #any time a ui input is pressed
     global currentIndex
@@ -82,6 +88,24 @@ def findArrowMenu(menu, direction):
     match (menu):
         case("text colour:"):
             textColourSwap(direction)
+        case("text speed:"):
+            changeTextSpeed(direction)
+
+def changeTextSpeed(direction):
+    global textSpeedMult
+    if direction.lower() == "left":
+        textSpeedMult -= 0.1
+        if textSpeedMult < 0.5:
+            textSpeedMult = 0.5
+    else:
+        textSpeedMult += 0.1
+        if textSpeedMult > 2:
+            textSpeedMult = 2
+    textSpeedMult = round(textSpeedMult, 1)
+    menuOpt[currentIndex] = menuOpt[currentIndex].split(":")[0] + ":" + " < " + str(textSpeedMult) + " >"
+    optionIndex = allMenus[currentMenu].index(str(menuOpt[currentIndex].split(":")[0]+":"+" < "+str(textSpeedMult)+" >"))
+    allMenus[currentMenu][optionIndex] = menuOpt[currentIndex].split(":")[0]+":"+" < "+str(textSpeedMult)+" >"
+    redrawMenu(menu)
 
 def textColourSwap(direction):
     global currentColourIndex
@@ -130,6 +154,10 @@ def menuBack(parentMenu, menuWidget):
         global currentMenu
         global previousMenus
         global currentIndex
+        if currentMenu == "options":
+            saveOptions()
+        allMenus[currentMenu][currentIndex] = allMenus[currentMenu][currentIndex].replace("> ", "")
+        allMenus[currentMenu][0] = "> "+allMenus[currentMenu][0]
         currentIndex = 0
         menuOpt = []
         parentMenu = allMenus[parentMenu[0]]
@@ -139,6 +167,63 @@ def menuBack(parentMenu, menuWidget):
         redrawMenu(menuWidget)
         currentMenu = previousMenus[0]
         previousMenus.pop(0)
+
+def loadOptions():
+    global allMenus
+    global currentColour
+    global titles
+    global titleChoice
+    global textSpeedMult
+    annoyingBugFix = []
+    count = 0
+    for x in allMenus["arrowkeymenu"]:
+        splitted = x.split(":")
+        annoyingBugFix.append(splitted[0]+": "+splitted[1]+":")
+    for item in range(0,len(allMenus["options"])):
+        match (count):
+            case(0):
+                currentItem = "false" # TODO: Change this if i make puretext a thing :l
+            case(1):
+                currentItem = titles[titleChoice]
+            case(2):
+                currentItem = currentColour
+            case(3):
+                currentItem = textSpeedMult
+        print(("options:"+allMenus["options"][item].lower().split(": ")[0]+":").replace(">", ""))
+        if ("options:"+allMenus["options"][item].lower().split(": ")[0]).replace(">", "") in allMenus["arrowkeymenu"] or ("options:"+allMenus["options"][item].lower().split(": ")[0]).replace(">", "") in annoyingBugFix:
+            allMenus["options"][item] += " < "+str(currentItem)+" >"
+        else:
+            allMenus["options"][item] += " "+str(currentItem)
+        count += 1
+
+def saveOptions():
+    global optionsJson
+    options = open("options.json", "w")
+    annoyingBugFix = []
+    for x in allMenus["arrowkeymenu"]:
+        splitted = x.split(":")
+        annoyingBugFix.append(splitted[0]+": "+splitted[1]+":")
+    print(annoyingBugFix)
+    for option in range(0,len(allMenus["options"])):
+        print(("options:"+allMenus["options"][option].lower().split(": ")[0]+":").replace(">", ""))
+        if ("options:"+allMenus["options"][option].lower().split(": ")[0]+":").replace(">", "") in allMenus["arrowkeymenu"] or ("options:"+allMenus["options"][option].lower().split(": ")[0]+":").replace(">", "") in annoyingBugFix:
+            optionData = allMenus["options"][option].split("< ")[1].lower()
+            print(optionData)
+            optionData = optionData.replace("< ", "")
+            optionData = optionData.replace(" >", "")
+        else:
+            optionData = allMenus["options"][option].split(": ")[1].lower()
+        if isinstance(optionData, int or float):
+            optionData = float(optionData)
+        elif isinstance(optionData.capitalize(), bool): #just for pure text option saving, others already have casting
+            optionData = bool(optionData)
+        else:
+            optionData = str(optionData)
+        optionName = allMenus["options"][option].split(":")[0].lower()
+        optionName = optionName.replace(" ", "")
+        optionName = optionName.replace(">", "")
+        optionsJson[optionName] = optionData
+    json.dump(optionsJson, options)
 
 def enterSubMenu(menuWidget, option):
     global currentIndex
@@ -166,7 +251,7 @@ def selectIndex(currentIndex):
     global title
     print(f"You selected {menuOpt[currentIndex]}")
     option = menuOpt[currentIndex].replace("> ", "")
-    isSubMenuTrigger = True if option.lower() in allMenus["submenutriggers"] else False #TODO: continue submenu entering logic here
+    isSubMenuTrigger = True if option.lower() in allMenus["submenutriggers"] else False
     if isSubMenuTrigger:
         menuOpt = allMenus[option.lower()]
         enterSubMenu(menu, option.lower())
@@ -176,7 +261,7 @@ def selectIndex(currentIndex):
                 match (option.lower()):
                     case ("start"):
                         listener.stop()
-                        ldScreen.loadIn(rootWindow, isPrologue, chrName) #TODO: add a check for swapping menus in this case entering a submenu
+                        ldScreen.loadIn(rootWindow, isPrologue, chrName, textSpeedMult)
                     case ("exit"):
                         rootWindow.quit()
             case ("options"):
@@ -227,4 +312,5 @@ redrawMenu(menu)
 listener = Listener(on_press=caseInput)
 listener.start()
 
+loadOptions()
 rootWindow.mainloop()
