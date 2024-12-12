@@ -2,14 +2,14 @@ import random
 import json
 
 class Character():
-    def __init__(self, name, health, mana, clas, specialty, advant, weak, strength, intelligence, defense, charisma, awareness, abilities, lvl, xp):
+    def __init__(self, name, health, mana, clas, subClass, advant, weak, strength, intelligence, defense, charisma, awareness, abilities, lvl, xp):
         self.name = name
         self.health = health #oh my god theres so many attributes
         self.totalHealth = health
         self.mana = mana
         self.totalMana = mana
-        self.characterClass = clas #all of the following are initially derived from the class (excluding lvl and xp) and are increased as level increases
-        self.specialty = specialty
+        self.clas = clas #all of the following are initially derived from the class (excluding lvl and xp) and are increased as level increases
+        self.subClass = subClass
         self.advantageType = advant
         self.disadvantageType = weak
         self.disadvantageTurns = 0

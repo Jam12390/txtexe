@@ -2,9 +2,9 @@ import time
 from tkinter import *
 import os
 
-def loadIn(frame, isPrologue, chrName, loadSpeedMultiplier):
+def loadIn(frame, isPrologue, chrName, loadSpeedMultiplier, textColour):
     clearLabels(frame)
-    loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier)
+    loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier, textColour)
 
 def clearLabels(frame):
     print(frame.winfo_children())
@@ -13,9 +13,9 @@ def clearLabels(frame):
         if widget != entryWidget:
             widget.destroy()
 
-def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier):
+def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier, textColour):
     currentText = ""
-    loadingText = Label(frame, justify=LEFT)
+    loadingText = Label(frame, text="", justify=LEFT, bg="black", fg=textColour, font=("Courier", 8))
     loadingText.place(x=0,y=0)
     if isPrologue:
         loadText = ["Curiosity.inc (2003)© All Rights Reserved.", "\n",
@@ -69,9 +69,10 @@ def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier):
             return True
         else:
             if isinstance(line, float) or isinstance(line, int):
-                time.sleep(float(line))
+                time.sleep(float(line)/loadSpeedMultiplier)
+                pass
             else:
                 for letter in line:
                     currentText += letter
                     loadingText.config(text=currentText)
-                    time.sleep(0.001*loadSpeedMultiplier)
+                    time.sleep(0.01/loadSpeedMultiplier)

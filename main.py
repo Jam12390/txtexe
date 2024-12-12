@@ -254,6 +254,7 @@ def selectIndex(currentIndex):
     global title
     global inMenu
     global character
+    global textSpeedMult
     print(f"You selected {menuOpt[currentIndex]}")
     option = menuOpt[currentIndex].replace("> ", "")
     isSubMenuTrigger = True if option.lower() in allMenus["submenutriggers"] else False
@@ -267,8 +268,8 @@ def selectIndex(currentIndex):
                     case ("start"):
                         listener.stop()
                         inMenu = False
-                        ldScreen.loadIn(rootWindow, isPrologue, chrName, textSpeedMult)
-                        character = CC.welcome(rootWindow=rootWindow, entryObj=userEntry)
+                        ldScreen.loadIn(rootWindow, isPrologue, chrName, textSpeedMult, textColour=currentColour)
+                        character = CC.welcome(rootWindow=rootWindow, entryObj=userEntry, textSpeedMult=textSpeedMult, textColour=currentColour)
                     case ("exit"):
                         rootWindow.quit()
             case ("options"):
