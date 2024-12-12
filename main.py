@@ -3,6 +3,7 @@ from pynput.keyboard import Key, Listener
 import time
 import json
 import loadin as ldScreen
+import chrCreate as CC
 
 currentIndex = 0
 currentScenario = "menu"
@@ -55,6 +56,8 @@ ____________    ____________   __         __  ____________   ____________
 ]
 titles = ["TXTEXE", "TEXET"]
 titleChoice = int(titles.index(optionsJson["title"].upper()))
+
+character = ""
 
 def caseInput(key): #any time a ui input is pressed
     global currentIndex
@@ -249,6 +252,8 @@ def selectIndex(currentIndex):
     global menuOpt
     global titleChoice
     global title
+    global inMenu
+    global character
     print(f"You selected {menuOpt[currentIndex]}")
     option = menuOpt[currentIndex].replace("> ", "")
     isSubMenuTrigger = True if option.lower() in allMenus["submenutriggers"] else False
@@ -261,7 +266,9 @@ def selectIndex(currentIndex):
                 match (option.lower()):
                     case ("start"):
                         listener.stop()
+                        inMenu = False
                         ldScreen.loadIn(rootWindow, isPrologue, chrName, textSpeedMult)
+                        character = CC.welcome(rootWindow=rootWindow, entryObj=userEntry)
                     case ("exit"):
                         rootWindow.quit()
             case ("options"):
@@ -298,12 +305,12 @@ areaLabel = ["","","","","","","","",""] #We're going to print the ASCII image a
 dialogueBox = [""] #same with any dialogue
 dialogueText = "nothing rn"
 
-cmdEntry = Entry(rootWindow, textvariable=">", width=30)
-cmdEntry.place(x=200, y=200)
-
 title = Text(rootWindow, wrap=NONE, font=("Courier", 8), borderwidth=0, bg="black", fg=availableColours[currentColourIndex], width=rootWindow.winfo_screenwidth(), height=rootWindow.winfo_screenheight())
 title.insert("1.0", arts[titleChoice])
 title.place(x=15, y=10)
+
+userEntry = Entry(rootWindow, width=150)
+userEntry.place(x=15,y=480)
 
 menu = Label(justify=LEFT, bg="black", fg=availableColours[currentColourIndex], font=("Courier", 16))
 menu.place(x=15,y=160)

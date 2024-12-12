@@ -27,7 +27,7 @@ class Character():
         with open("allAbilities.json", "r") as f:
             currentAttack = json.load(f.read())[ability]
         initDmg = currentAttack["damage"]
-        print(f"You use {currentAttack["name"]}") #temp code: change this to run a procedure which outputs the description like during loadin.py, you know what i mean
+        #print(f"You use {currentAttack["name"]}") #temp code: change this to run a procedure which outputs the description like during loadin.py, you know what i mean TODO: fix all of this please
         if currentAttack["type"].lower() == self.advantageType.lower():
             initDmg = round(initDmg*1.5)
         elif currentAttack["type"].lower() == self.disadvantageType.lower(): #adv and disadv types are gotten from class
@@ -53,7 +53,7 @@ class Character():
                 initDmg = 0
         if currentAttack["disadvantageTurns"] > 0 and not miss:
             if random.randint(0,100) <= currentAttack["disadvantageProbability"]:
-                print(f"{enemy.name} was disadvantaged for {currentAttack["disadvantageTurns"]} turns")
+                #print(f"{enemy.name} was disadvantaged for {currentAttack["disadvantageTurns"]} turns")
                 enemyDisadvantage = currentAttack["disadvantageTurns"]
             else:
                 enemyDisadvantage = 0
@@ -219,17 +219,17 @@ class Enemy(Character):
                 1-(0.01*player.defense) #% decrease in dmg up to 40% at max level with an extra 10% if blocking
             )
         )
-        print(f"{self.name} uses {finalDecision["name"]}")
+        #print(f"{self.name} uses {finalDecision["name"]}")
         if not miss:
-            print(f"{player.name} was damaged for {initDmg}")
+            #print(f"{player.name} was damaged for {initDmg}")
             finalDmg = initDmg
         else:
-            print("The attack misses")
+            #print("The attack misses")
             finalDmg = 0
         if finalDecision["disadvantageturns"] > 0 and not player.defending: #player cannot be disadvantaged if they are blocking
             disadvantageEffect = random.randint(0,100)
             if disadvantageEffect <= finalDecision["disadvantageProbability"]:
-                print(f"{player.name} was disadvantaged for {finalDecision["disadvantageturns"]} turns")
+                #print(f"{player.name} was disadvantaged for {finalDecision["disadvantageturns"]} turns")
                 playerDisadvantage = finalDecision["disadvantageturns"]
             else:
                 playerDisadvantage = 0

@@ -8,8 +8,9 @@ def loadIn(frame, isPrologue, chrName, loadSpeedMultiplier):
 
 def clearLabels(frame):
     print(frame.winfo_children())
+    entryWidget = frame.winfo_children()[1]
     for widget in frame.winfo_children():
-        if not widget == "<tkinter.Entry object .!entry>":
+        if widget != entryWidget:
             widget.destroy()
 
 def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier):
@@ -39,7 +40,7 @@ def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier):
                     "WARNING: CONNECTION INSECURE", "\n", #maybe try do a glitch effect here using the same screen wide window method as prologueendanim?
                     "Initialising CtrlPtl... \n", 0.5,
                     "Initialising Video Feed...", "\n", 1,
-                    "Connection Complete.", 0.2
+                    "Connection Complete.", 0.2, "END"
                     ]
     else:
         loadText = ["Curiosity.inc (2003)© All Rights Reserved.", "\n",
@@ -63,6 +64,9 @@ def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier):
     for line in loadText: #ohmygod this actually worked
         if line == "\n":
             currentText += line
+        elif line == "END":
+            loadingText.destroy()
+            return True
         else:
             if isinstance(line, float) or isinstance(line, int):
                 time.sleep(float(line))
@@ -70,4 +74,4 @@ def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier):
                 for letter in line:
                     currentText += letter
                     loadingText.config(text=currentText)
-                    time.sleep(0.01*loadSpeedMultiplier)
+                    time.sleep(0.001*loadSpeedMultiplier)

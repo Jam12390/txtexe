@@ -1,0 +1,40 @@
+{
+    "classes": ["warrior", "barbarian", "wizard"],
+    "subclasses": {
+        "warrior": ["paladin", "knight", "warrior"],
+        "barbarian": ["berserker", "thief"],
+        "wizard": ["mage", "evil wizard"]
+    },
+    "abilities": {
+        "warrior": {
+            "angel sword": {
+                "name": "Angel Sword",
+                "description": "no"
+            },
+            "fortify": {
+                "name": "Fortify",
+                "description": "no"
+            }
+        },
+        "barbarian": {
+            "bloodlust": {
+                "name": "Bloodlust",
+                "description": "nope"
+            },
+            "frenzy": {
+                "name": "Frenzy",
+                "description": "no"
+            }
+        },
+        "wizard": {
+            "fireball": {
+                "name": "Fireball",
+                "description": "what do you think?"
+            },
+            "healing spell": {
+                "name": "Healing Spell",
+                "description": "really?"
+            }
+        }
+    }
+}
