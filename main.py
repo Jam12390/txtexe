@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from pynput.keyboard import Key, Listener
 import time
 import json
@@ -60,32 +61,34 @@ titleChoice = int(titles.index(optionsJson["title"].upper()))
 character = ""
 
 def caseInput(key): #any time a ui input is pressed
-    global currentIndex
-    global previousMenus
-    match (key):
-        case (Key.esc):
-            if inMenu:
-                menuBack(previousMenus, menu) #TODO: add arguments for this so it doesnt fucking break
-        case (Key.up):
-            if inMenu:
-                currentIndex = menuUp(currentIndex)
-        case (Key.down):
-            if inMenu:
-                currentIndex = menuDown(currentIndex)
-        case (Key.left):
-            if inMenu:
-                if str(currentMenu.lower()+":"+menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":") in allMenus["arrowkeymenu"]:
-                    findArrowMenu(menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":", "left")
-        case (Key.right):
-            if inMenu:
-                if str(currentMenu.lower()+":"+menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":") in allMenus["arrowkeymenu"]:
-                    findArrowMenu(menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":", "right")
-        case (Key.enter):
-            if rootWindow.focus_displayof():
+    if rootWindow.focus_displayof() and not rootWindow.focus_displayof() == userEntry:
+        global currentIndex
+        global previousMenus
+        match (key):
+            case (Key.esc):
+                if inMenu:
+                    menuBack(previousMenus, menu) #TODO: add arguments for this so it doesnt fucking break
+            case (Key.up):
+                if inMenu:
+                    currentIndex = menuUp(currentIndex)
+            case (Key.down):
+                if inMenu:
+                    currentIndex = menuDown(currentIndex)
+            case (Key.left):
+                if inMenu:
+                    if str(currentMenu.lower()+":"+menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":") in allMenus["arrowkeymenu"]:
+                        findArrowMenu(menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":", "left")
+            case (Key.right):
+                if inMenu:
+                    if str(currentMenu.lower()+":"+menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":") in allMenus["arrowkeymenu"]:
+                        findArrowMenu(menuOpt[currentIndex].split(":")[0].replace("> ", "").lower()+":", "right")
+            case (Key.enter):
                 if inMenu:
                     selectIndex(currentIndex)
                 else:
                     submitText()
+    elif key == Key.esc and rootWindow.focus_displayof() == userEntry:
+        focusRemove.focus_set()
 
 def findArrowMenu(menu, direction):
     match (menu):
@@ -123,6 +126,8 @@ def textColourSwap(direction):
     currentColour = availableColours[currentColourIndex].lower()
     menu.config(fg=currentColour)
     title.config(fg=currentColour)
+    entryIndicator.config(fg=currentColour)
+    userEntry.config(fg=currentColour)
     menuOpt[currentIndex] = menuOpt[currentIndex].split(":")[0]+":"+" < "+currentColour.capitalize()+" >"
     optionIndex = allMenus[currentMenu].index(str(menuOpt[currentIndex].split(":")[0]+":"+" < "+currentColour.capitalize()+" >"))
     allMenus[currentMenu][optionIndex] = menuOpt[currentIndex].split(":")[0]+":"+" < "+currentColour.capitalize()+" >"
@@ -268,7 +273,7 @@ def selectIndex(currentIndex):
                     case ("start"):
                         listener.stop()
                         inMenu = False
-                        ldScreen.loadIn(rootWindow, isPrologue, chrName, textSpeedMult, textColour=currentColour)
+                        ldScreen.loadIn(rootWindow, isPrologue, chrName, textSpeedMult, textColour=currentColour, widgetConserve=widgetConserve)
                         character = CC.welcome(rootWindow=rootWindow, entryObj=userEntry, textSpeedMult=textSpeedMult, textColour=currentColour)
                     case ("exit"):
                         rootWindow.quit()
@@ -310,8 +315,17 @@ title = Text(rootWindow, wrap=NONE, font=("Courier", 8), borderwidth=0, bg="blac
 title.insert("1.0", arts[titleChoice])
 title.place(x=15, y=10)
 
-userEntry = Entry(rootWindow, width=150)
-userEntry.place(x=15,y=480)
+entryPosx, entryPosy = 20, 480
+
+entryIndicator = Label(rootWindow, font=("Courier", 15), fg=currentColour, bg="black", text="> ")
+userEntry = Entry(rootWindow, width=150, bg="black", fg=currentColour, insertwidth=6, insertbackground="white", borderwidth=0, font=("Courier", 10))
+entryIndicator.place(x=entryPosx-15,y=entryPosy-5)
+userEntry.place(x=entryPosx ,y=entryPosy)
+
+focusRemove = Label(text="wow you found me :)", fg="white")
+focusRemove.place(x=10000, y=0)
+
+widgetConserve = [entryIndicator, userEntry, focusRemove]
 
 menu = Label(justify=LEFT, bg="black", fg=availableColours[currentColourIndex], font=("Courier", 16))
 menu.place(x=15,y=160)

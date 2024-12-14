@@ -2,15 +2,14 @@ import time
 from tkinter import *
 import os
 
-def loadIn(frame, isPrologue, chrName, loadSpeedMultiplier, textColour):
-    clearLabels(frame)
+def loadIn(frame, isPrologue, chrName, loadSpeedMultiplier, textColour, widgetConserve):
+    clearLabels(frame, widgetConserve)
     loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier, textColour)
 
-def clearLabels(frame):
+def clearLabels(frame, widgetConserve):
     print(frame.winfo_children())
-    entryWidget = frame.winfo_children()[1]
     for widget in frame.winfo_children():
-        if widget != entryWidget:
+        if not widget in widgetConserve:
             widget.destroy()
 
 def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier, textColour):
@@ -69,10 +68,10 @@ def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier, textColour):
             return True
         else:
             if isinstance(line, float) or isinstance(line, int):
-                time.sleep(float(line)/loadSpeedMultiplier)
+                #time.sleep(float(line)/loadSpeedMultiplier)
                 pass
             else:
                 for letter in line:
                     currentText += letter
                     loadingText.config(text=currentText)
-                    time.sleep(0.01/loadSpeedMultiplier)
+                    #time.sleep(0.01/loadSpeedMultiplier)
