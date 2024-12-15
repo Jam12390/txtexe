@@ -3,7 +3,7 @@ import time
 import json
 import characterClasses as chrClass
 
-def welcome(rootWindow, entryObj, textSpeedMult, textColour):
+def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryIndicator):
     name = "Jam"
 
     chrWelcomeText = [
@@ -44,7 +44,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
         "Your character", "\n", 2,
         "A name", "\n", "io bound",
         #if no name is provided a second time
-        "eoD", #98
+        "eoD", ".", #98
         #if no name is provided here but was before. defiance = 0
         "If you really cannot think of a name", "\n", 1,
         "Then I will choose for you only on this occasion", "\n", 2,
@@ -63,45 +63,45 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
         "As you will not like what comes next if you continue to be defiant.", "\n", 2,
         "I will choose for you again", "\n", 1,
         "Your character will be a wizard." "\n", 1,
-        "End of.", "\n", 1, "eoD", #143
+        "End of.", "\n", 1, "eoD", ".", #143
         #if nothing is chosen (1st time) defiance = 0
         "Did you forget to put something?", "\n", 1,
         "Or did you misspell?", "\n", 1,
         "Here, try again", "\n", "output classes", "io bound",
         #if nothing is chosen again (1st time) defiance up to 1
         "Alright, I will tolerate your refusal this time, but only this time", "\n", 2,
-        "Your character will be a wizard.", "\n", 1, "eoD",
+        "Your character will be a wizard.", "\n", 1, "eoD", ".",
         #move on again
         "Choose It's Specialty", "\n", "output subclasses", "io bound", #161 start, 164 end
         #defiance = 2
-        "eoD", #go to defiance ending
+        "eoD", ".", #go to defiance ending
         #defiance = 1
         "Are you enjoying this?", "\n", 1,
         "Fine.", "\n", 1.5,
         "I will choose one more time for you.", "\n", 2,
         "Do not test my patience again.", "\n", 1,
-        f"You will be a (theres defo a subclass here).", "\n", 1, "eoD",#TODO: make sure the subclasses list is populated before testing, will crash otherwise {subClasses[clas][0]}
+        f"You will be a (theres defo a subclass here).", "\n", 1, "eoD", ".",#TODO: make sure the subclasses list is populated before testing, will crash otherwise {subClasses[clas][0]}
         #defiance = 0 and nothing put
         "You forgot to put something.", "\n", 1,
-        "Please choose.", "\n", "output subclasses", "io bound", "subclass",
+        "Please choose.", "\n", "output subclasses", "io bound",
         #defiance = 0 and something put
         "That's not one of the choices.", "\n", 1,
         "Or maybe you misspelled.", "\n", 0.5, #190
-        "Anyway, please choose an available class", "output subclasses", "\n", "io bound", "subclass",
+        "Anyway, please choose an available class", "output subclasses", "\n", "io bound",
         #something not put again and defiance = 0
         "Seeing as you cannot choose,", "\n", 1,
         "I will choose for you.", "\n", 2,
-        f"You will be a (just put something here later)", "\n", 1, "eoD", #201 {subClasses[clas][0]}
+        f"You will be a (just put something here later)", "\n", 1, "eoD", ".", #201 {subClasses[clas][0]}
         #continue as normal
         "Choose It's Ability", "\n", "output abilities", "io bound", #202 start, 203 end
         #defiance = 2
         f"{name}, of all the subjects I have had,", "\n", 1,
         "None have tested my patience as much as you are doing now.", "\n", 1.5,
         "If you do not want to choose,", "\n", 1,
-        "Then you will recieve nothing.", "\n", 2, "eoD", #player gets no ability
+        "Then you will recieve nothing.", "\n", 2, "eoD", ".", #player gets no ability
         #defiance = 1 - nothing put
         "Since we're at the end of this and my patience,", "\n", 0.5,
-        f"You get (this doesnt work yet) as your ability.", "\n", 0.5, #{abilities[clas][0]}
+        f"You get (this doesnt work yet) as your ability.", "\n", 0.5, "eoD", ".", #{abilities[clas][0]}
         #defiance = 0 and nothing put
         "You forgot to choose,", "\n", 0.5,
         "Try again", "\n", "output abilities", "io bound",
@@ -111,7 +111,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
         #not chosen again
         "Why'd you- nevermind.", "\n", 0.5,
         "I don't see a point in you being indecisive so I will choose for you.", "\n", 2,
-        f"Your ability is .", "\n", 0.5, "eoD", #{abilities[clas][0]}
+        f"Your ability is .", "\n", 0.5, "eoD", ".", #{abilities[clas][0]}
         #continue as normal
         "endChr", #227 - jesus fking christ
         "Here's your character:", "\n", 0.5,
@@ -126,6 +126,23 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
         "And remember,", "\n", 1,
         "I'm always watching.", "END"]
     
+    windowCanvas = Canvas(rootWindow)
+    scrollBar = Scrollbar(rootWindow, orient="vertical", command=windowCanvas.yview)
+    scrollArea = Frame(windowCanvas)
+    scrollArea.bind(
+        "<Configure>", lambda e: windowCanvas.configure(scrollregion=windowCanvas.bbox("all"))
+    )
+
+    windowCanvas.create_window((0,0), window=scrollArea, anchor="nw")
+    windowCanvas.configure(yscrollcommand=scrollBar.set, bg="black", height=rootWindow.winfo_height()-50, width=rootWindow.winfo_screenwidth(), borderwidth=0, highlightthickness=0, relief="ridge")
+
+    def redrawWidgets(event=None):
+        windowCanvas.configure(height=rootWindow.winfo_height()-50)
+        userEntry.place(x=20, y=rootWindow.winfo_height()-20)
+        entryIndicator.place(x=5, y=rootWindow.winfo_height()-25)
+
+    rootWindow.bind("<Configure>", redrawWidgets)
+
     waiting = False
     entryStrVar = StringVar()
 
@@ -151,9 +168,12 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
 
     dialogueIndex = 0
 
-    dialogueLabel = Label(rootWindow, text="", justify=LEFT, bg="black", fg=textColour, font=("Courier", 8))
-    dialogueLabel.place(x=0,y=0)
+    dialogueLabel = Label(scrollArea, text="", justify=LEFT, bg="black", fg=textColour, font=("Courier", 8))
+    dialogueLabel.pack()
     currentText = ""
+
+    windowCanvas.place(x=0, y=0)
+    scrollBar.pack(side="right", fill="y")
 
     def acceptInput(event=None):
         nonlocal waiting
@@ -197,7 +217,11 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
                 currentText += outputText
                 dialogueLabel.config(text=currentText)
             
-            if chrWelcomeText[dialogueIndex+1] == "eoD":
+            if chrWelcomeText[dialogueIndex] == ".":
+                chosenOption = True
+                pass
+
+            if chrWelcomeText[dialogueIndex] == "eoD" and not chosenOption:
                 chosenOption = True
                 dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
 
@@ -212,7 +236,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
                 print(entryData)
 
                 match(attributeCount):
-                    case(0):
+                    case(0): #username
                         if len(entryData) != 0:
                             userName = entryData
                             attributeCount += 1
@@ -225,7 +249,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
                                 userName = "SBJ51"
                                 attributeCount += 1
                                 defiance += 1
-                    case(1):
+                    case(1): #chrname
                         if len(entryData) != 0:
                             name = entryData
                             attributeCount += 1
@@ -242,16 +266,16 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
                                     name = "James"
                                     defiance += 1
                                     attributeCount += 1
-                    case(2):
+                    case(2): #class
                         if entryData.lower() in chrOptions["classes"]:
                             clas = entryData.lower()
-                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
                             attributeCount += 1
+                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
                         else:
                             match(defiance): #yea yea defiance stuff here ik
                                 case(1):
                                     if classRefuse == 0:
-                                        dialogueIndex = objectIndexes["defianceroute"][4]-1
+                                        dialogueIndex = objectIndexes["defianceroute"][3]-1
                                     classRefuse += 1
                                     if classRefuse == 2:
                                         defiance += 1
@@ -259,28 +283,70 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour):
                                         attributeCount += 1
                                 case(0):
                                     if classRefuse == 0:
-                                        dialogueIndex = objectIndexes["defianceroute"][5]-1
+                                        dialogueIndex = objectIndexes["defianceroute"][4]-1
                                     classRefuse += 1
                                     if classRefuse == 2:
                                         defiance += 1
                                         clas = "wizard"
                                         attributeCount += 1
-
-                    case(3):
+                    case(3): #subclass
                         if entryData.lower() in chrOptions["subclasses"][clas]:
                             subClass = entryData.lower()
+                            attributeCount += 1
+                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
                         else:
-                            pass #same here
-                        dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
-                        attributeCount += 1
-                    case(4):
+                            match(defiance):
+                                case(2):
+                                    defiance += 1
+                                    gotoDefianceEnding()
+                                case(1):
+                                    if subClassRefuse == 0:
+                                        dialogueIndex = objectIndexes["defianceroute"][5]-1
+                                    subClassRefuse += 1
+                                    subClass = chrOptions["subclasses"][clas.lower()][0]
+                                    attributeCount += 1
+                                    defiance += 1
+                                case(0):
+                                    if subClassRefuse == 0:
+                                        if len(entryData) == 0:
+                                            dialogueIndex = objectIndexes["defianceroute"][6]-1
+                                        else:
+                                            dialogueIndex = objectIndexes["defianceroute"][7]-1
+                                    subClassRefuse += 1
+                                    if subClassRefuse == 2:
+                                        dialogueIndex = objectIndexes["defianceroute"][8]-1
+                                        attributeCount += 1
+                                        subClass = chrOptions["subclasses"][clas.lower()][0]
+                                        defiance += 1
+                    case(4): #abilities AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
                         if entryData.lower() in chrOptions["abilities"][clas]:
                             ability = entryData.lower()
+                            attributeCount += 1
+                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
                         else:
-                            pass #same here
-                        dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
-                        attributeCount += 1
-
+                            match(defiance): #same here
+                                case(2):
+                                    dialogueIndex = objectIndexes["defianceroute"][9]-1
+                                    ability = ""
+                                    defiance += 1
+                                    attributeCount += 1
+                                case(1):
+                                    dialogueIndex = objectIndexes["defianceroute"][10]-1
+                                    ability = chrOptions["abilities"][clas.lower()][0]
+                                    defiance += 1
+                                    attributeCount += 1
+                                case(0):
+                                    if abilityRefuse == 0:
+                                        if len(entryData) == 0:
+                                            dialogueIndex = objectIndexes["defianceroute"][11]-1
+                                        else:
+                                            dialogueIndex = objectIndexes["defianceroute"][12]-1
+                                    abilityRefuse += 1
+                                    if abilityRefuse == 2:
+                                        dialogueIndex = objectIndexes["defianceroute"][13]-1
+                                        ability = chrOptions["abilities"][clas.lower()][0]
+                                        defiance += 1
+                                        attributeCount += 1
             if isinstance(chrWelcomeText[dialogueIndex], int) or isinstance(chrWelcomeText[dialogueIndex], float):
                 chosenOption = True
                 #time.sleep(float(chrWelcomeText[dialogueIndex])/textSpeedMult)
@@ -396,4 +462,4 @@ def getAttributes(clas, subClass):
 
 def createCharacter(name, clas, subClass, ability):
     health, mana, strength, intelligence, defense, charisma, weak, advant = getAttributes(clas, subClass)
-    return chrClass.Character(name=name, health=health, clas=clas, subClass=subClass, mana=mana, advant=advant, weak=weak, strength=strength, intelligence=intelligence, defense=defense, charisma=charisma, awareness=0, abilities=[ability], lvl=1, xp=0)
+    return chrClass.Character(name=name, health=health, clas=clas, subClass=subClass, mana=mana, advant=advant, weak=weak, strength=strength, intelligence=intelligence, defense=defense, charisma=charisma, abilities=[ability], lvl=1, xp=0)

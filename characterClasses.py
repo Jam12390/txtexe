@@ -2,7 +2,7 @@ import random
 import json
 
 class Character():
-    def __init__(self, name, health, mana, clas, subClass, advant, weak, strength, intelligence, defense, charisma, awareness, abilities, lvl, xp):
+    def __init__(self, name, health, mana, clas, subClass, advant, weak, strength, intelligence, defense, charisma, abilities, lvl, xp):
         self.name = name
         self.health = health #oh my god theres so many attributes
         self.totalHealth = health
@@ -17,7 +17,6 @@ class Character():
         self.intelligence = intelligence
         self.defense = defense
         self.charisma = charisma
-        self.awareness = awareness
         self.abilities = abilities #use dictionary of dictionaties here to store name, type, description, damage, disadvantage chance, effect, etc. 
         self.action = ""
         self.level = lvl
