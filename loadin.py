@@ -68,10 +68,10 @@ def loadScreen(frame, isPrologue, chrName, loadSpeedMultiplier, textColour):
             return True
         else:
             if isinstance(line, float) or isinstance(line, int):
-                #time.sleep(float(line)/loadSpeedMultiplier)
+                time.sleep(float(line)/loadSpeedMultiplier)
                 pass
             else:
                 for letter in line:
                     currentText += letter
                     loadingText.config(text=currentText)
-                    #time.sleep(0.01/loadSpeedMultiplier)
+                    time.sleep(0.01/loadSpeedMultiplier)

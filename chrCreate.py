@@ -126,6 +126,8 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "And remember,", "\n", 1,
         "I'm always watching.", "END"]
     
+    print(len(chrWelcomeText))
+    
     windowCanvas = Canvas(rootWindow)
     scrollBar = Scrollbar(rootWindow, orient="vertical", command=windowCanvas.yview)
     scrollArea = Frame(windowCanvas)
@@ -349,14 +351,14 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                                         attributeCount += 1
             if isinstance(chrWelcomeText[dialogueIndex], int) or isinstance(chrWelcomeText[dialogueIndex], float):
                 chosenOption = True
-                #time.sleep(float(chrWelcomeText[dialogueIndex])/textSpeedMult)
+                time.sleep(float(chrWelcomeText[dialogueIndex])/textSpeedMult)
 
             if ".." in str(chrWelcomeText[dialogueIndex]):
                 chosenOption = True
                 for dot in chrWelcomeText[dialogueIndex]:
                     currentText += dot
                     dialogueLabel.config(text=currentText)
-                    #time.sleep(0.75)
+                    time.sleep(0.75)
 
             if chrWelcomeText[dialogueIndex] == "endChr" and not chosenOption:
                 chosenOption = True
@@ -373,7 +375,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                         waitTime = 0.01
                     currentText += chrWelcomeText[dialogueIndex][letter]
                     dialogueLabel.config(text=currentText)
-                    #time.sleep(waitTime/textSpeedMult)
+                    time.sleep(waitTime/textSpeedMult)
             dialogueIndex += 1
 
 def gotoDefianceEnding(dialogueLabel):
@@ -442,10 +444,10 @@ def getAttributes(clas, subClass):
             intelligence = 0
             charisma -= 1
             defense -= 3
-        case("thief"):
-            health -= 10
-            charisma += 2
-            defense -= 1
+        case("tank"):
+            health += 40
+            charisma -= 1
+            defense += 5
         case("mage"):
             intelligence += 1
             charisma -= 1

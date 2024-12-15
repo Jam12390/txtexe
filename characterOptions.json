@@ -2,7 +2,7 @@
     "classes": ["warrior", "barbarian", "wizard"],
     "subclasses": {
         "warrior": ["paladin", "knight", "warrior"],
-        "barbarian": ["berserker", "thief"],
+        "barbarian": ["berserker", "tank"],
         "wizard": ["mage", "evil wizard"]
     },
     "abilities": {

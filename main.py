@@ -115,6 +115,7 @@ def changeTextSpeed(direction):
 
 def textColourSwap(direction):
     global currentColourIndex
+    global currentColour
     if direction.lower() == "left":
         currentColourIndex -= 1
         if currentColourIndex < 0:
