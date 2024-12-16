@@ -6,6 +6,19 @@ import characterClasses as chrClass
 def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryIndicator):
     name = "Jam"
 
+    def acceptInput(event=None):
+        nonlocal waiting
+        if waiting:
+            nonlocal entryStrVar
+            entryStrVar.set(entryObj.get())
+            waiting = False
+            entryObj.delete(0, END)
+    
+    def redrawWidgets(event=None):
+        windowCanvas.configure(height=rootWindow.winfo_height()-50)
+        userEntry.place(x=20, y=rootWindow.winfo_height()-20)
+        entryIndicator.place(x=5, y=rootWindow.winfo_height()-25)
+
     chrWelcomeText = [
         "Ah, a new subject.", "\n", 2,
         "Welcome to the game.", "\n", 0.5,
@@ -15,7 +28,6 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "Moving on, seeing as I have introduced myself, I see it fit for you to do the same.", "\n", 2,
         "So subject, What is your name?", "\n", "io bound", #25
         # If a name is provided
-        f"{name.capitalize()}, welcome.", "\n", 1,
         # If no name is provided
         "I believe you forgot to put your name,", "\n", 0.5,
         "I will give you the benefit of the doubt and allow you to put your name again.", "\n", "io bound",
@@ -29,6 +41,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "This does not bode well for the rest of the experiment,", "\n", 3.2,
         "However, we must move on,", "\n", 0.1,
         # Skip this line if a name was not provided at all
+        ", welcome.", "\n", 1,
         "Now that you've introduced yourself,", "\n", 0.5, #58 first, 60 end
         "Let's move onto creating your vessel, or as you call them, 'characters'.", "\n", 0.5,
         "So without further ado,", "\n", 1.5,
@@ -51,9 +64,10 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "James seems like a fitting name", "\n", 2,
         "Moving on,", "\n", 1.5,
         #else continue as normal
-        "Choose It's Class", "\n", "output classes", "io bound",#109 start, 112 end
+        ", an acceptable name.", "\n", 1,
+        "Now, choose it's class", "\n", "output classes", "io bound",#109 start, 112 end
         #if nothing is chosen (2nd time) defiance = 1
-        f"{name}, please make your character.", "\n", 2,
+        ", please make your character.", "\n", 2,
         "It is integral to the experiment", "\n", 1,
         "Choose a class.", "\n", "output classes", "io bound",
         #if nothing is chosen again (2nd time) defiance = 1, will go up to 2
@@ -72,6 +86,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "Alright, I will tolerate your refusal this time, but only this time", "\n", 2,
         "Your character will be a wizard.", "\n", 1, "eoD", ".",
         #move on again
+        "[replace with class text]", "\n", 2,
         "Choose It's Specialty", "\n", "output subclasses", "io bound", #161 start, 164 end
         #defiance = 2
         "eoD", ".", #go to defiance ending
@@ -93,9 +108,10 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "I will choose for you.", "\n", 2,
         f"You will be a (just put something here later)", "\n", 1, "eoD", ".", #201 {subClasses[clas][0]}
         #continue as normal
+        ", fair enough.", "\n", 1.5,
         "Choose It's Ability", "\n", "output abilities", "io bound", #202 start, 203 end
         #defiance = 2
-        f"{name}, of all the subjects I have had,", "\n", 1,
+        ", of all the subjects I have had,", "\n", 1,
         "None have tested my patience as much as you are doing now.", "\n", 1.5,
         "If you do not want to choose,", "\n", 1,
         "Then you will recieve nothing.", "\n", 2, "eoD", ".", #player gets no ability
@@ -114,6 +130,8 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         f"Your ability is .", "\n", 0.5, "eoD", ".", #{abilities[clas][0]}
         #continue as normal
         "endChr", #227 - jesus fking christ
+        ", your starter ability.", "\n", 1,
+        "endChr",
         "Here's your character:", "\n", 0.5,
         f"pretend theres something here :(", "\n", 1, #incomplete but :l {playerCharacter.health} NEVERMIND IT DOESNT WORK WHY
         "Before you leave.", "\n", 2,
@@ -122,11 +140,11 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "And although I am merciful,", "\n", 1,
         "I do not tolerate subjects who attempt to tamper with my work.", "\n", 4,
         "Do with that information what you will.", "\n", 4,
-        f"Goodbye for now, {name}.", "\n", 1,
+        "Goodbye for now, ", "\n", 1,
         "And remember,", "\n", 1,
-        "I'm always watching.", "END"]
+        "I'm always watching."]
     
-    print(len(chrWelcomeText))
+    name = "Jam"
     
     windowCanvas = Canvas(rootWindow)
     scrollBar = Scrollbar(rootWindow, orient="vertical", command=windowCanvas.yview)
@@ -137,11 +155,6 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
 
     windowCanvas.create_window((0,0), window=scrollArea, anchor="nw")
     windowCanvas.configure(yscrollcommand=scrollBar.set, bg="black", height=rootWindow.winfo_height()-50, width=rootWindow.winfo_screenwidth(), borderwidth=0, highlightthickness=0, relief="ridge")
-
-    def redrawWidgets(event=None):
-        windowCanvas.configure(height=rootWindow.winfo_height()-50)
-        userEntry.place(x=20, y=rootWindow.winfo_height()-20)
-        entryIndicator.place(x=5, y=rootWindow.winfo_height()-25)
 
     rootWindow.bind("<Configure>", redrawWidgets)
 
@@ -176,14 +189,6 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
 
     windowCanvas.place(x=0, y=0)
     scrollBar.pack(side="right", fill="y")
-
-    def acceptInput(event=None):
-        nonlocal waiting
-        if waiting:
-            nonlocal entryStrVar
-            entryStrVar.set(entryObj.get())
-            waiting = False
-            entryObj.delete(0, END)
         
     entryObj.bind("<Return>", acceptInput)
 
@@ -219,7 +224,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                 dialogueLabel.config(text=currentText)
             
             if chrWelcomeText[dialogueIndex] == ".":
-                chosenOption = True
+                chosenOption = True #placeholder item to fix other bug
                 pass
 
             if chrWelcomeText[dialogueIndex] == "eoD" and not chosenOption:
@@ -240,7 +245,11 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                         if len(entryData) != 0:
                             userName = entryData
                             attributeCount += 1
+                            chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = userName.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
                             dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
+                            chrWelcomeText[chrWelcomeText.index(", please make your character.")] = name.capitalize() + ", please make your character."
+                            chrWelcomeText[chrWelcomeText.index(", of all the subjects I have had,")] = name.capitalize() + ", of all the subjects I have had,"
+                            chrWelcomeText[chrWelcomeText.index("Goodbye for now, ")] = "Goodbye for now, " + name.capitalize() + "."
                         else:
                             if userNameRefuse == 0:
                                 dialogueIndex = objectIndexes["defianceroute"][attributeCount]-1
@@ -249,37 +258,56 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                                 userName = "SBJ51"
                                 attributeCount += 1
                                 defiance += 1
+                                chrWelcomeText[chrWelcomeText.index(", please make your character.")] = name.capitalize() + ", please make your character."
+                                chrWelcomeText[chrWelcomeText.index(", of all the subjects I have had,")] = name.capitalize() + ", of all the subjects I have had,"
+                                chrWelcomeText[chrWelcomeText.index("Goodbye for now, ")] = "Goodbye for now, " + name.capitalize() + "."
                     case(1): #chrname
                         if len(entryData) != 0:
                             name = entryData
                             attributeCount += 1
+                            chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = name.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
                             dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
                         else:
                             match(defiance):
                                 case(1):
                                     nameRefuse += 1
                                     if nameRefuse == 2:
-                                        gotoDefianceEnding(dialogueLabel=dialogueLabel)    #WORKING ISSUE: just run the code and dont put a username or character name, youll see
+                                        gotoDefianceEnding(dialogueLabel=dialogueLabel)
                                         defiance += 1
                                 case(0):
                                     dialogueIndex = objectIndexes["defianceroute"][2]-1
                                     name = "James"
                                     defiance += 1
                                     attributeCount += 1
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ""
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]+1] = ""
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]+2] = ""
                     case(2): #class
                         if entryData.lower() in chrOptions["classes"]:
                             clas = entryData.lower()
                             attributeCount += 1
                             dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
+                            match(clas):
+                                case("warrior"):
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = f"Warrior, the most basic choice. I hope you are a bit more interesting than the others, {name.capitalize()}"
+                                case("barbarian"):
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = f"Barbarian, I assume you're impatient {name.capitalize()}."
+                                case("wizard"):
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = f"Wizard. I hope you enjoy reading, {name.capitalize()}."
+                                case(_):
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = f"{clas.capitalize()}, an acceptable choice."
                         else:
-                            match(defiance): #yea yea defiance stuff here ik
+                            match(defiance):
                                 case(1):
                                     if classRefuse == 0:
                                         dialogueIndex = objectIndexes["defianceroute"][3]-1
                                     classRefuse += 1
                                     if classRefuse == 2:
                                         defiance += 1
-                                        clas = "wizard" #dialogueIndex = objectIndexes[attributeCount]-1
+                                        clas = "wizard"
+                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ""
+                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]+1] = ""
+                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]+2] = ""
                                         attributeCount += 1
                                 case(0):
                                     if classRefuse == 0:
@@ -288,11 +316,15 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                                     if classRefuse == 2:
                                         defiance += 1
                                         clas = "wizard"
+                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ""
+                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]+1] = ""
+                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]+2] = ""
                                         attributeCount += 1
                     case(3): #subclass
                         if entryData.lower() in chrOptions["subclasses"][clas]:
                             subClass = entryData.lower()
                             attributeCount += 1
+                            chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = subClass.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
                             dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
                         else:
                             match(defiance):
@@ -304,6 +336,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                                         dialogueIndex = objectIndexes["defianceroute"][5]-1
                                     subClassRefuse += 1
                                     subClass = chrOptions["subclasses"][clas.lower()][0]
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = subClass.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
                                     attributeCount += 1
                                     defiance += 1
                                 case(0):
@@ -317,11 +350,13 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                                         dialogueIndex = objectIndexes["defianceroute"][8]-1
                                         attributeCount += 1
                                         subClass = chrOptions["subclasses"][clas.lower()][0]
+                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = subClass.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
                                         defiance += 1
                     case(4): #abilities AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
                         if entryData.lower() in chrOptions["abilities"][clas]:
                             ability = entryData.lower()
                             attributeCount += 1
+                            chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ability.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
                             dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
                         else:
                             match(defiance): #same here
@@ -382,20 +417,20 @@ def gotoDefianceEnding(dialogueLabel):
 
 def findPromptIndexes(chrWelcomeText, name):
     objects = {
-        "normalroute": ["So subject, What is your name?", "Now that you've introduced yourself,", "Choose It's Class", "Choose It's Specialty", "Choose It's Ability", "endChr"],
+        "normalroute": ["So subject, What is your name?", ", welcome.", ", an acceptable name.",  "[replace with class text]", ", fair enough.", ", your starter ability."],
         "defianceroute": [
             #NOTE: Each of these is the start of each pathway, since each defiance path is sequential, we don't need the other indexes for the continuations
             #until later paths because there are separate dialogue options for if something was put or nothing was put
             "I believe you forgot to put your name,", #refusing to enter username
             "Subject.", #defiance = 1 and refusal to enter character name
             "If you really cannot think of a name", #defiance = 0 and refusal to enter character name
-            f"{name}, please make your character.", #defiance = 1 and refusal to enter class
+            ", please make your character.", #defiance = 1 and refusal to enter class
             "Did you forget to put something?", #defiance = 0 and refusal to enter class
             "Are you enjoying this?", #defiance = 1 and refusal to enter subclass
             "You forgot to put something.", #defiance = 0, not entered subclass and nothing put
             "That's not one of the choices.", #defiance = 0, not entered correct subclass but something put
             "Seeing as you cannot choose,", #defiance = 0 and invalid subclass entered again
-            f"{name}, of all the subjects I have had,", #defiance = 2 and nothing put for ability
+            ", of all the subjects I have had,", #defiance = 2 and nothing put for ability
             "Since we're at the end of this and my patience,", #defiance = 1 and nothing put for ability
             "You forgot to choose,", #defiance = 0 and nothing put for ability
             "That's not an ability.", #defiance = 0 and something put for ability

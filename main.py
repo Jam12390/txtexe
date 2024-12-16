@@ -226,12 +226,14 @@ def saveOptions(): #TODO: if the player is currently in the options menu and cho
         annoyingBugFix.append(splitted[0]+": "+splitted[1]+":")
     print(annoyingBugFix)
     for option in range(0,len(allMenus["options"])):
-        optionToSearch = "options:" + allMenus["options"][option].lower().split(": ")[0]
+        optionToSearch = "options:" + allMenus["options"][option].lower().split(": ")[0]+ ":"
         optionToSearch = optionToSearch.replace("> ", "") #remove the cursor if it's there
+        print(optionToSearch)
         if optionToSearch in allMenus["arrowkeymenu"] or optionToSearch in annoyingBugFix:
             optionData = allMenus["options"][option].split("< ")[1].lower() #arrowkeymenu: split the string containing the optionName and optionChoice at "< " in optionName: < optionChoice >, selecting the final index
             print(optionData)
             optionData = optionData.replace("< ", "") #making sure arrows don't remain
+            print(optionData)
             optionData = optionData.replace(" >", "")
         else:
             optionData = allMenus["options"][option].split(": ")[1].lower() #not arrowkeymenu: just split it at ": " in optionName: optionChoice, leaving just optionChoice
