@@ -196,7 +196,6 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                 chosenOption = True
             
             if str(chrWelcomeText[dialogueIndex]).split(" ")[0] == "output" and not chosenOption:
-                print("done this")
                 chosenOption = True
                 outputText = "Available " + chrWelcomeText[dialogueIndex].split(" ")[1]+": "
                 match(chrWelcomeText[dialogueIndex].split(" ")[1]):
@@ -235,7 +234,6 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                 root = entryObj.winfo_toplevel()
                 root.wait_variable(entryStrVar)
                 entryData = entryStrVar.get()
-                print(entryData)
 
                 match(attributeCount):
                     case(0): #username
@@ -300,7 +298,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                             match(defiance):
                                 case(2):
                                     defiance += 1
-                                    gotoDefianceEnding()
+                                    gotoDefianceEnding(dialogueLabel=dialogueLabel)
                                 case(1):
                                     if subClassRefuse == 0:
                                         dialogueIndex = objectIndexes["defianceroute"][5]-1
