@@ -3,6 +3,7 @@ import time
 import json
 import characterClasses as chrClass
 
+
 def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryIndicator):
     name = "Jam"
 
@@ -13,11 +14,11 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
             entryStrVar.set(entryObj.get())
             waiting = False
             entryObj.delete(0, END)
-    
+
     def redrawWidgets(event=None):
-        windowCanvas.configure(height=rootWindow.winfo_height()-50)
-        userEntry.place(x=20, y=rootWindow.winfo_height()-20)
-        entryIndicator.place(x=5, y=rootWindow.winfo_height()-25)
+        windowCanvas.configure(height=rootWindow.winfo_height() - 50)
+        userEntry.place(x=20, y=rootWindow.winfo_height() - 20)
+        entryIndicator.place(x=5, y=rootWindow.winfo_height() - 25)
 
     chrWelcomeText = [
         "Ah, a new subject.", "\n", 2,
@@ -65,7 +66,7 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "Moving on,", "\n", 1.5,
         #else continue as normal
         ", an acceptable name.", "\n", 1,
-        "Now, choose it's class", "\n", "output classes", "io bound",#109 start, 112 end
+        "Choose it's class", "\n", "output classes", "io bound",#109 start, 112 end
         #if nothing is chosen (2nd time) defiance = 1
         ", please make your character.", "\n", 2,
         "It is integral to the experiment", "\n", 1,
@@ -142,19 +143,29 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
         "Do with that information what you will.", "\n", 4,
         "Goodbye for now, ", "\n", 1,
         "And remember,", "\n", 1,
-        "I'm always watching."]
-    
+        "I'm always watching."
+    ]
+
     name = "Jam"
-    
+
     windowCanvas = Canvas(rootWindow)
     scrollBar = Scrollbar(rootWindow, orient="vertical", command=windowCanvas.yview)
     scrollArea = Frame(windowCanvas)
     scrollArea.bind(
-        "<Configure>", lambda e: windowCanvas.configure(scrollregion=windowCanvas.bbox("all"))
+        "<Configure>",
+        lambda e: windowCanvas.configure(scrollregion=windowCanvas.bbox("all")),
     )
 
-    windowCanvas.create_window((0,0), window=scrollArea, anchor="nw")
-    windowCanvas.configure(yscrollcommand=scrollBar.set, bg="black", height=rootWindow.winfo_height()-50, width=rootWindow.winfo_screenwidth(), borderwidth=0, highlightthickness=0, relief="ridge")
+    windowCanvas.create_window((0, 0), window=scrollArea, anchor="nw")
+    windowCanvas.configure(
+        yscrollcommand=scrollBar.set,
+        bg="black",
+        height=rootWindow.winfo_height() - 50,
+        width=rootWindow.winfo_screenwidth(),
+        borderwidth=0,
+        highlightthickness=0,
+        relief="ridge",
+    )
 
     rootWindow.bind("<Configure>", redrawWidgets)
 
@@ -183,53 +194,66 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
 
     dialogueIndex = 0
 
-    dialogueLabel = Label(scrollArea, text="", justify=LEFT, bg="black", fg=textColour, font=("Courier", 8))
+    dialogueLabel = Text(
+        scrollArea,
+        #justify=LEFT,
+        bg="black",
+        fg=textColour,
+        font=("Courier", 8),
+        borderwidth=0,
+        width=rootWindow.winfo_width()
+    )
     dialogueLabel.pack()
     currentText = ""
 
     windowCanvas.place(x=0, y=0)
     scrollBar.pack(side="right", fill="y")
-        
+
     entryObj.bind("<Return>", acceptInput)
 
-    for line in range(0,len(chrWelcomeText)):
+    for line in range(0, len(chrWelcomeText)):
         chosenOption = False
         if not dialogueIndex >= len(chrWelcomeText):
             if chrWelcomeText[dialogueIndex] == "\n" and not chosenOption:
                 currentText += chrWelcomeText[dialogueIndex]
-                dialogueLabel.config(text=currentText)
+                dialogueLabel.insert("end", chrWelcomeText[dialogueIndex])
                 chosenOption = True
-            
-            if str(chrWelcomeText[dialogueIndex]).split(" ")[0] == "output" and not chosenOption:
+
+            if (
+                str(chrWelcomeText[dialogueIndex]).split(" ")[0] == "output"
+                and not chosenOption
+            ):
                 chosenOption = True
-                outputText = "Available " + chrWelcomeText[dialogueIndex].split(" ")[1]+": "
-                match(chrWelcomeText[dialogueIndex].split(" ")[1]):
-                    case("classes"):
+                outputText = (
+                    "Available " + chrWelcomeText[dialogueIndex].split(" ")[1] + ": "
+                )
+                match (chrWelcomeText[dialogueIndex].split(" ")[1]):
+                    case "classes":
                         outputList = chrOptions["classes"]
-                    case("subclasses"):
+                    case "subclasses":
                         outputList = chrOptions["subclasses"][clas]
-                    case("abilities"):
+                    case "abilities":
                         outputList = chrOptions["abilities"][clas]
-                
+
                 if not isinstance(outputList, dict):
                     for option in outputList:
                         print(option)
-                        outputText += option.capitalize()+", "
+                        outputText += option.capitalize() + ", "
                 else:
                     for ability in outputList:
                         print(ability)
-                        outputText += ability.capitalize()+","
+                        outputText += ability.capitalize() + ","
                 outputText += "\n"
                 currentText += outputText
-                dialogueLabel.config(text=currentText)
-            
+                dialogueLabel.insert("end", outputText)
+
             if chrWelcomeText[dialogueIndex] == ".":
-                chosenOption = True #placeholder item to fix other bug
+                chosenOption = True  # placeholder item to fix other bug
                 pass
 
             if chrWelcomeText[dialogueIndex] == "eoD" and not chosenOption:
                 chosenOption = True
-                dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
+                dialogueIndex = objectIndexes["normalroute"][attributeCount] - 1
 
             if chrWelcomeText[dialogueIndex] == "io bound" and not chosenOption:
                 chosenOption = True
@@ -240,261 +264,453 @@ def welcome(rootWindow, entryObj, textSpeedMult, textColour, userEntry, entryInd
                 root.wait_variable(entryStrVar)
                 entryData = entryStrVar.get()
 
-                match(attributeCount):
-                    case(0): #username
+                match (attributeCount):
+                    case 0:  # username
                         if len(entryData) != 0:
                             userName = entryData
                             attributeCount += 1
-                            chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = userName.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
-                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
-                            chrWelcomeText[chrWelcomeText.index(", please make your character.")] = name.capitalize() + ", please make your character."
-                            chrWelcomeText[chrWelcomeText.index(", of all the subjects I have had,")] = name.capitalize() + ", of all the subjects I have had,"
-                            chrWelcomeText[chrWelcomeText.index("Goodbye for now, ")] = "Goodbye for now, " + name.capitalize() + "."
+                            chrWelcomeText[
+                                objectIndexes["normalroute"][attributeCount]
+                            ] = (
+                                userName.capitalize()
+                                + chrWelcomeText[
+                                    objectIndexes["normalroute"][attributeCount]
+                                ]
+                            )
+                            dialogueIndex = (
+                                objectIndexes["normalroute"][attributeCount] - 1
+                            )
+                            chrWelcomeText[
+                                chrWelcomeText.index(", please make your character.")
+                            ] = (name.capitalize() + ", please make your character.")
+                            chrWelcomeText[
+                                chrWelcomeText.index(
+                                    ", of all the subjects I have had,"
+                                )
+                            ] = (
+                                name.capitalize() + ", of all the subjects I have had,"
+                            )
+                            chrWelcomeText[
+                                chrWelcomeText.index("Goodbye for now, ")
+                            ] = ("Goodbye for now, " + name.capitalize() + ".")
                         else:
                             if userNameRefuse == 0:
-                                dialogueIndex = objectIndexes["defianceroute"][attributeCount]-1
-                            userNameRefuse += 1 #starts defiance for userName
+                                dialogueIndex = (
+                                    objectIndexes["defianceroute"][attributeCount] - 1
+                                )
+                            userNameRefuse += 1  # starts defiance for userName
                             if userNameRefuse == 3:
                                 userName = "SBJ51"
                                 attributeCount += 1
                                 defiance += 1
-                                chrWelcomeText[chrWelcomeText.index(", please make your character.")] = name.capitalize() + ", please make your character."
-                                chrWelcomeText[chrWelcomeText.index(", of all the subjects I have had,")] = name.capitalize() + ", of all the subjects I have had,"
-                                chrWelcomeText[chrWelcomeText.index("Goodbye for now, ")] = "Goodbye for now, " + name.capitalize() + "."
-                    case(1): #chrname
+                                chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount]
+                                    ] = ""
+                                chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount] + 1
+                                    ] = ""
+                                chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount] + 2
+                                    ] = ""
+                                chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount] + 3
+                                    ] = "Now that you have a name,"
+                                chrWelcomeText[
+                                    chrWelcomeText.index(
+                                        ", please make your character."
+                                    )
+                                ] = (
+                                    name.capitalize() + ", please make your character."
+                                )
+                                chrWelcomeText[
+                                    chrWelcomeText.index(
+                                        ", of all the subjects I have had,"
+                                    )
+                                ] = (
+                                    name.capitalize()
+                                    + ", of all the subjects I have had,"
+                                )
+                                chrWelcomeText[
+                                    chrWelcomeText.index("Goodbye for now, ")
+                                ] = ("Goodbye for now, " + name.capitalize() + ".")
+                                
+                    case 1:  # chrname
                         if len(entryData) != 0:
                             name = entryData
                             attributeCount += 1
-                            chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = name.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
-                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
+                            chrWelcomeText[
+                                objectIndexes["normalroute"][attributeCount]
+                            ] = (
+                                name.capitalize()
+                                + chrWelcomeText[
+                                    objectIndexes["normalroute"][attributeCount]
+                                ]
+                            )
+                            dialogueIndex = (
+                                objectIndexes["normalroute"][attributeCount] - 1
+                            )
                         else:
-                            match(defiance):
-                                case(1):
+                            match (defiance):
+                                case 1:
                                     nameRefuse += 1
                                     if nameRefuse == 2:
                                         gotoDefianceEnding(dialogueLabel=dialogueLabel)
                                         defiance += 1
-                                case(0):
-                                    dialogueIndex = objectIndexes["defianceroute"][2]-1
+                                case 0:
+                                    dialogueIndex = (
+                                        objectIndexes["defianceroute"][2] - 1
+                                    )
                                     name = "James"
                                     defiance += 1
                                     attributeCount += 1
-                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ""
-                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]+1] = ""
-                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]+2] = ""
-                    case(2): #class
+                                    chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount]
+                                    ] = ""
+                                    chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount] + 1
+                                    ] = ""
+                                    chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount] + 2
+                                    ] = ""
+                    case 2:  # class
                         if entryData.lower() in chrOptions["classes"]:
                             clas = entryData.lower()
                             attributeCount += 1
-                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
-                            match(clas):
-                                case("warrior"):
-                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = f"Warrior, the most basic choice. I hope you are a bit more interesting than the others, {name.capitalize()}"
-                                case("barbarian"):
-                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = f"Barbarian, I assume you're impatient {name.capitalize()}."
-                                case("wizard"):
-                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = f"Wizard. I hope you enjoy reading, {name.capitalize()}."
-                                case(_):
-                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = f"{clas.capitalize()}, an acceptable choice."
+                            dialogueIndex = (
+                                objectIndexes["normalroute"][attributeCount] - 1
+                            )
+                            match (clas):
+                                case "warrior":
+                                    chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount]
+                                    ] = f"Warrior, the most basic choice. I hope you are a bit more interesting than the others, {name.capitalize()}"
+                                case "barbarian":
+                                    chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount]
+                                    ] = f"Barbarian, I assume you're impatient {name.capitalize()}."
+                                case "wizard":
+                                    chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount]
+                                    ] = f"Wizard. I hope you enjoy reading, {name.capitalize()}."
+                                case _:
+                                    chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount]
+                                    ] = f"{clas.capitalize()}, an acceptable choice."
                         else:
-                            match(defiance):
-                                case(1):
+                            match (defiance):
+                                case 1:
                                     if classRefuse == 0:
-                                        dialogueIndex = objectIndexes["defianceroute"][3]-1
+                                        dialogueIndex = (
+                                            objectIndexes["defianceroute"][3] - 1
+                                        )
                                     classRefuse += 1
                                     if classRefuse == 2:
                                         defiance += 1
                                         clas = "wizard"
-                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ""
-                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]+1] = ""
-                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]+2] = ""
                                         attributeCount += 1
-                                case(0):
+                                        chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                        ] = ""
+                                        chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                            + 1
+                                        ] = ""
+                                        chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                            + 2
+                                        ] = ""
+                                case 0:
                                     if classRefuse == 0:
-                                        dialogueIndex = objectIndexes["defianceroute"][4]-1
+                                        dialogueIndex = (
+                                            objectIndexes["defianceroute"][4] - 1
+                                        )
                                     classRefuse += 1
                                     if classRefuse == 2:
                                         defiance += 1
                                         clas = "wizard"
-                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ""
-                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]+1] = ""
-                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]+2] = ""
+                                        print(chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                        ])
                                         attributeCount += 1
-                    case(3): #subclass
+                                        chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                        ] = ""
+                                        chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                            + 1
+                                        ] = ""
+                                        chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                            + 2
+                                        ] = ""
+                    case 3:  # subclass
                         if entryData.lower() in chrOptions["subclasses"][clas]:
                             subClass = entryData.lower()
                             attributeCount += 1
-                            chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = subClass.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
-                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
+                            chrWelcomeText[
+                                objectIndexes["normalroute"][attributeCount]
+                            ] = (
+                                subClass.capitalize()
+                                + chrWelcomeText[
+                                    objectIndexes["normalroute"][attributeCount]
+                                ]
+                            )
+                            dialogueIndex = (
+                                objectIndexes["normalroute"][attributeCount] - 1
+                            )
                         else:
-                            match(defiance):
-                                case(2):
+                            match (defiance):
+                                case 2:
                                     defiance += 1
                                     gotoDefianceEnding(dialogueLabel=dialogueLabel)
-                                case(1):
+                                case 1:
                                     if subClassRefuse == 0:
-                                        dialogueIndex = objectIndexes["defianceroute"][5]-1
+                                        dialogueIndex = (
+                                            objectIndexes["defianceroute"][5] - 1
+                                        )
                                     subClassRefuse += 1
                                     subClass = chrOptions["subclasses"][clas.lower()][0]
-                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = subClass.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
+                                    chrWelcomeText[
+                                        objectIndexes["normalroute"][attributeCount]
+                                    ] = (
+                                        subClass.capitalize()
+                                        + chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                        ]
+                                    )
                                     attributeCount += 1
                                     defiance += 1
-                                case(0):
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ""
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]+1] = "" #something went wrong here, just run the code up to this point
+                                    chrWelcomeText[objectIndexes["normalroute"][attributeCount]+2] = ""
+                                case 0:
                                     if subClassRefuse == 0:
                                         if len(entryData) == 0:
-                                            dialogueIndex = objectIndexes["defianceroute"][6]-1
+                                            dialogueIndex = (
+                                                objectIndexes["defianceroute"][6] - 1
+                                            )
                                         else:
-                                            dialogueIndex = objectIndexes["defianceroute"][7]-1
+                                            dialogueIndex = (
+                                                objectIndexes["defianceroute"][7] - 1
+                                            )
                                     subClassRefuse += 1
                                     if subClassRefuse == 2:
-                                        dialogueIndex = objectIndexes["defianceroute"][8]-1
+                                        dialogueIndex = (
+                                            objectIndexes["defianceroute"][8] - 1
+                                        )
                                         attributeCount += 1
-                                        subClass = chrOptions["subclasses"][clas.lower()][0]
-                                        chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = subClass.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
+                                        subClass = chrOptions["subclasses"][
+                                            clas.lower()
+                                        ][0]
+                                        chrWelcomeText[
+                                            objectIndexes["normalroute"][attributeCount]
+                                        ] = (
+                                            subClass.capitalize()
+                                            + chrWelcomeText[
+                                                objectIndexes["normalroute"][
+                                                    attributeCount
+                                                ]
+                                            ]
+                                        )
                                         defiance += 1
-                    case(4): #abilities AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                    case 4:  # abilities AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
                         if entryData.lower() in chrOptions["abilities"][clas]:
                             ability = entryData.lower()
                             attributeCount += 1
-                            chrWelcomeText[objectIndexes["normalroute"][attributeCount]] = ability.capitalize() + chrWelcomeText[objectIndexes["normalroute"][attributeCount]]
-                            dialogueIndex = objectIndexes["normalroute"][attributeCount]-1
+                            chrWelcomeText[
+                                objectIndexes["normalroute"][attributeCount]
+                            ] = (
+                                ability.capitalize()
+                                + chrWelcomeText[
+                                    objectIndexes["normalroute"][attributeCount]
+                                ]
+                            )
+                            dialogueIndex = (
+                                objectIndexes["normalroute"][attributeCount] - 1
+                            )
                         else:
-                            match(defiance): #same here
-                                case(2):
-                                    dialogueIndex = objectIndexes["defianceroute"][9]-1
+                            match (defiance):  # same here
+                                case 2:
+                                    dialogueIndex = (
+                                        objectIndexes["defianceroute"][9] - 1
+                                    )
                                     ability = ""
                                     defiance += 1
                                     attributeCount += 1
-                                case(1):
-                                    dialogueIndex = objectIndexes["defianceroute"][10]-1
+                                case 1:
+                                    dialogueIndex = (
+                                        objectIndexes["defianceroute"][10] - 1
+                                    )
                                     ability = chrOptions["abilities"][clas.lower()][0]
                                     defiance += 1
                                     attributeCount += 1
-                                case(0):
+                                case 0:
                                     if abilityRefuse == 0:
                                         if len(entryData) == 0:
-                                            dialogueIndex = objectIndexes["defianceroute"][11]-1
+                                            dialogueIndex = (
+                                                objectIndexes["defianceroute"][11] - 1
+                                            )
                                         else:
-                                            dialogueIndex = objectIndexes["defianceroute"][12]-1
+                                            dialogueIndex = (
+                                                objectIndexes["defianceroute"][12] - 1
+                                            )
                                     abilityRefuse += 1
                                     if abilityRefuse == 2:
-                                        dialogueIndex = objectIndexes["defianceroute"][13]-1
-                                        ability = chrOptions["abilities"][clas.lower()][0]
+                                        dialogueIndex = (
+                                            objectIndexes["defianceroute"][13] - 1
+                                        )
+                                        ability = chrOptions["abilities"][clas.lower()][
+                                            0
+                                        ]
                                         defiance += 1
                                         attributeCount += 1
-            if isinstance(chrWelcomeText[dialogueIndex], int) or isinstance(chrWelcomeText[dialogueIndex], float):
+            if isinstance(chrWelcomeText[dialogueIndex], int) or isinstance(
+                chrWelcomeText[dialogueIndex], float
+            ):
                 chosenOption = True
-                time.sleep(float(chrWelcomeText[dialogueIndex])/textSpeedMult)
+                time.sleep(float(chrWelcomeText[dialogueIndex]) / textSpeedMult)
 
             if ".." in str(chrWelcomeText[dialogueIndex]):
                 chosenOption = True
                 for dot in chrWelcomeText[dialogueIndex]:
                     currentText += dot
-                    dialogueLabel.config(text=currentText)
+                    dialogueLabel.insert("end", dot)
                     time.sleep(0.75)
 
             if chrWelcomeText[dialogueIndex] == "endChr" and not chosenOption:
                 chosenOption = True
-                print(f"username: {userName}\nname: {name}\nclass: {clas}\nsubclass: {subClass}\nability: {ability}")
-                playerCharacter = createCharacter(name=name, clas=clas, subClass=subClass, ability=ability)
+                print(
+                    f"username: {userName}\nname: {name}\nclass: {clas}\nsubclass: {subClass}\nability: {ability}"
+                )
+                playerCharacter = createCharacter(
+                    name=name, clas=clas, subClass=subClass, ability=ability
+                )
                 print("breakpoint here to check character values")
 
             if not chosenOption:
                 chosenOption = True
-                for letter in range(0,len(chrWelcomeText[dialogueIndex])):
-                    if chrWelcomeText[dialogueIndex][letter] == "," and letter != len(chrWelcomeText[dialogueIndex]):
+                for letter in range(0, len(chrWelcomeText[dialogueIndex])):
+                    if chrWelcomeText[dialogueIndex][letter] == "," and letter != len(
+                        chrWelcomeText[dialogueIndex]
+                    ):
                         waitTime = 0.5
                     else:
                         waitTime = 0.01
                     currentText += chrWelcomeText[dialogueIndex][letter]
-                    dialogueLabel.config(text=currentText)
-                    time.sleep(waitTime/textSpeedMult)
+                    dialogueLabel.insert("end", chrWelcomeText[dialogueIndex][letter])
+                    time.sleep(waitTime / textSpeedMult)
             dialogueIndex += 1
+            windowCanvas.yview_moveto(1)
+
 
 def gotoDefianceEnding(dialogueLabel):
     dialogueLabel.config(text="angy")
     input("this works :D")
 
+
 def findPromptIndexes(chrWelcomeText, name):
     objects = {
-        "normalroute": ["So subject, What is your name?", ", welcome.", ", an acceptable name.",  "[replace with class text]", ", fair enough.", ", your starter ability."],
+        "normalroute": [
+            "So subject, What is your name?",
+            ", welcome.",
+            ", an acceptable name.",
+            "[replace with class text]",
+            ", fair enough.",
+            ", your starter ability.",
+        ],
         "defianceroute": [
-            #NOTE: Each of these is the start of each pathway, since each defiance path is sequential, we don't need the other indexes for the continuations
-            #until later paths because there are separate dialogue options for if something was put or nothing was put
-            "I believe you forgot to put your name,", #refusing to enter username
-            "Subject.", #defiance = 1 and refusal to enter character name
-            "If you really cannot think of a name", #defiance = 0 and refusal to enter character name
-            ", please make your character.", #defiance = 1 and refusal to enter class
-            "Did you forget to put something?", #defiance = 0 and refusal to enter class
-            "Are you enjoying this?", #defiance = 1 and refusal to enter subclass
-            "You forgot to put something.", #defiance = 0, not entered subclass and nothing put
-            "That's not one of the choices.", #defiance = 0, not entered correct subclass but something put
-            "Seeing as you cannot choose,", #defiance = 0 and invalid subclass entered again
-            ", of all the subjects I have had,", #defiance = 2 and nothing put for ability
-            "Since we're at the end of this and my patience,", #defiance = 1 and nothing put for ability
-            "You forgot to choose,", #defiance = 0 and nothing put for ability
-            "That's not an ability.", #defiance = 0 and something put for ability
-            "Why'd you- nevermind." #defiance = 0 and invalid ability entered again
-            ]
-        }
-    objectIndexes = {
-        "normalroute": [],
-        "defianceroute": []
-        }
+            # NOTE: Each of these is the start of each pathway, since each defiance path is sequential, we don't need the other indexes for the continuations
+            # until later paths because there are separate dialogue options for if something was put or nothing was put
+            "I believe you forgot to put your name,",  # refusing to enter username
+            "Subject.",  # defiance = 1 and refusal to enter character name
+            "If you really cannot think of a name",  # defiance = 0 and refusal to enter character name
+            ", please make your character.",  # defiance = 1 and refusal to enter class
+            "Did you forget to put something?",  # defiance = 0 and refusal to enter class
+            "Are you enjoying this?",  # defiance = 1 and refusal to enter subclass
+            "You forgot to put something.",  # defiance = 0, not entered subclass and nothing put
+            "That's not one of the choices.",  # defiance = 0, not entered correct subclass but something put
+            "Seeing as you cannot choose,",  # defiance = 0 and invalid subclass entered again
+            ", of all the subjects I have had,",  # defiance = 2 and nothing put for ability
+            "Since we're at the end of this and my patience,",  # defiance = 1 and nothing put for ability
+            "You forgot to choose,",  # defiance = 0 and nothing put for ability
+            "That's not an ability.",  # defiance = 0 and something put for ability
+            "Why'd you- nevermind.",  # defiance = 0 and invalid ability entered again
+        ],
+    }
+    objectIndexes = {"normalroute": [], "defianceroute": []}
     for item in objects["normalroute"]:
         objectIndexes["normalroute"].append(chrWelcomeText.index(item))
     for item in objects["defianceroute"]:
         objectIndexes["defianceroute"].append(chrWelcomeText.index(item))
     return objectIndexes
 
+
 def getAttributes(clas, subClass):
-    match(clas.lower()):
-        case("warrior"):
+    match (clas.lower()):
+        case "warrior":
             health, strength, intelligence, defense, charisma = 100, 12, 8, 10, 11
             weak = "none"
             advant = "physical"
-        case("barbarian"):
+        case "barbarian":
             health, strength, intelligence, defense, charisma = 150, 15, 6, 7, 2
             weak = "magic"
             advant = "physical"
-        case("wizard"):
+        case "wizard":
             health, strength, intelligence, defense, charisma = 80, 8, 15, 6, 5
             weak = "physical"
             advant = "magic"
-    match(subClass.lower()):
-        case("paladin"):
+    match (subClass.lower()):
+        case "paladin":
             health += 10
             defense += 1
-        case("knight"):
+        case "knight":
             health += 20
             defense += 2
             strength -= 1
             charisma += 1
             intelligence -= 1
-        case("berserker"):
+        case "berserker":
             health += 25
             strength += 3
             intelligence = 0
             charisma -= 1
             defense -= 3
-        case("tank"):
+        case "tank":
             health += 40
             charisma -= 1
             defense += 5
-        case("mage"):
+        case "mage":
             intelligence += 1
             charisma -= 1
             strength -= 1
-        case("evil wizard"):
+        case "evil wizard":
             strength += 2
             intelligence += 1
             charisma -= 3
             defense -= 2
-        case(_):
+        case _:
             pass
-    mana = round(100*(intelligence/10))
+    mana = round(100 * (intelligence / 10))
     return health, mana, strength, intelligence, defense, charisma, weak, advant
 
+
 def createCharacter(name, clas, subClass, ability):
-    health, mana, strength, intelligence, defense, charisma, weak, advant = getAttributes(clas, subClass)
-    return chrClass.Character(name=name, health=health, clas=clas, subClass=subClass, mana=mana, advant=advant, weak=weak, strength=strength, intelligence=intelligence, defense=defense, charisma=charisma, abilities=[ability], lvl=1, xp=0)
+    health, mana, strength, intelligence, defense, charisma, weak, advant = (
+        getAttributes(clas, subClass)
+    )
+    return chrClass.Character(
+        name=name,
+        health=health,
+        clas=clas,
+        subClass=subClass,
+        mana=mana,
+        advant=advant,
+        weak=weak,
+        strength=strength,
+        intelligence=intelligence,
+        defense=defense,
+        charisma=charisma,
+        abilities=[ability],
+        lvl=1,
+        xp=0,
+    )
